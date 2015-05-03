@@ -19,6 +19,9 @@
 # If not, see http://www.gnu.org/licenses/.
 *********************************************************************/
 
+/**
+ * Flowgraphs for Gtk
+ */
 namespace GtkFlow {
     public errordomain NodeError {
         /**
@@ -36,7 +39,7 @@ namespace GtkFlow {
     /**
      * This class represents an endpoint of a node. These endpoints can be
      * connected in order to let them exchange data. The data contained
-     * in this endpoint is stored as GLib.Variant. Only Docks that contain
+     * in this endpoint is stored as GLib.Value. Only Docks that contain
      * data with the same VariantType can be interconnected.
      */
     public abstract class Dock : GLib.Object {
@@ -51,14 +54,23 @@ namespace GtkFlow {
         /**
          * The value that is stored in this Dock
          */
-        protected GLib.Variant val;
+        protected GLib.Value val;
+
+        public Dock(GLib.Value initial) {
+            this.val = initial;
+        }
 
         /**
          * Make variant typecheck of value available to the outside world
          */
-        public virtual bool is_of_type(GLib.VariantType v){
-            return this.val.is_of_type(v);
+        public virtual bool is_of_type(GLib.Type v){
+            return this.val.type() == v;
         }
+
+        public virtual Type type() {
+            return this.val.type();
+        }
+
         public signal void connected(Dock d);
     }
 
@@ -66,9 +78,16 @@ namespace GtkFlow {
      * The Source is a special Type of Dock that provides data.
      * A Source can provide a multitude of Sinks with data.
      */
-    public abstract class Source : Dock {
-        private Sink[] s;
+    public class Source : Dock {
+        private Gee.ArrayList<Sink> sinks;
         public virtual void add_sink(Sink s) throws NodeError {
+            if (!this.sinks.contains(s))
+                this.sinks.add(s);
+        }
+
+        public Source(GLib.Value initial) {
+            base(initial);
+            this.sinks = new Gee.ArrayList<Sink>();
         }
     }
 
@@ -76,30 +95,34 @@ namespace GtkFlow {
      * A Sink is a special Type of Dock that receives data from
      * A source in order to let it either 
      */
-    public abstract class Sink : Dock {
+    public class Sink : Dock {
         /**
          * The Source that this Sink draws its data from
          */
-        private weak Source? _s;
-        public weak Source? s {
+        private weak Source? _source;
+        public weak Source? source {
             get{
-                return this._s;
-            }
-            set{
-                this._s = value;
-                this.connected(value);
+                return this._source;
             }
             default=null;
         }
 
-        public virtual void set_source(Source s) throws NodeError{
+        public Sink(GLib.Value initial) {
+            base(initial);
         }
-        public signal void changed(GLib.Variant v);
+
+        public virtual void set_source(Source s) throws NodeError{
+            this._source = s;
+            this.connected(s);
+        }
+
+        public signal void changed(GLib.Value v);
     }
 
     public class Node : GLib.Object {
         private int x = 0;
         private int y = 0;
+
 
         public void add_source(Source s) {
         }
@@ -109,5 +132,11 @@ namespace GtkFlow {
     }
 
     public class NodeView : Gtk.Widget {
+        public void add_node(Node n) {
+        }
+
+        public override bool draw(Cairo.Context cr) {
+            return true;
+        }
     }
 }
