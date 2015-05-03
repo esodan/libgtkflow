@@ -1,0 +1,16 @@
+.*.sw*
+*.c
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+Makefile
+src/dummy*
+doc/*
+
+gtkflow.h
+gtkflow.vapi
+libgtkflow.so
+GtkFlow-*.typelib
+GtkFlow-*.gir
+
