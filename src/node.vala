@@ -38,7 +38,12 @@ namespace GtkFlow {
          * Throw when a user tries to assign a value with a wrong type
          * to a sink
          */
-        INCOMPATIBLE_VALUE
+        INCOMPATIBLE_VALUE,
+        /**
+         * Throw then the user tries to get a value from a sink that
+         * is currently not connected to any source
+         */
+        NO_SOURCE
     }
 
     /**
@@ -95,7 +100,7 @@ namespace GtkFlow {
                 );
             this.val = v;
             foreach (Sink s in this.sinks)
-                s.changed(v);
+                s.change_value(v);
         }
 
         public virtual void add_sink(Sink s) throws NodeError {
@@ -110,7 +115,7 @@ namespace GtkFlow {
                 this.sinks.add(s);
             if (!s.connected_to(this))
                 s.set_source(this);
-            s.changed(this.val);
+            s.change_value(this.val);
         }
 
         /**
@@ -156,13 +161,33 @@ namespace GtkFlow {
         }
 
         /**
+         * Checks if there is a source that supplies this sink with a value.
+         * If yes, it returns that value. If not, returns the default value of
+         * This Sink
+         */
+        public GLib.Value get_value() throws NodeError {
+            if (this.source != null) {
+                return this.val;
+            } else {
+                throw new NodeError.NO_SOURCE("This sink has no source to drain data from");
+            }
+        }
+
+        /**
          * Returns true if this Sink is connected to the given Source
          */
         public bool connected_to(Source s) {
             return this.source == s;
         }
 
-        public signal void changed(GLib.Value v);
+        public void change_value(GLib.Value v) {
+            this.val = v;
+            this.changed(v);
+        }
+
+        public virtual signal void changed(GLib.Value v) {
+            this.val = v;
+        }
     }
 
     /**
