@@ -25,15 +25,20 @@
 namespace GtkFlow {
     public errordomain NodeError {
         /**
-          * Throw when the user tries to connect a sink to a source that
-          * Delivers a different type
-          */
+         * Throw when the user tries to connect a sink to a source that
+         * Delivers a different type
+         */
         INCOMPATIBLE_SOURCETYPE,
         /**
-          * Throw when the user tries to connect a source to a sink that
-          * Delivers a different type
-          */
-        INCOMPATIBLE_SINKTYPE
+         * Throw when the user tries to connect a source to a sink that
+         * Delivers a different type
+         */
+        INCOMPATIBLE_SINKTYPE,
+        /**
+         * Throw when a user tries to assign a value with a wrong type
+         * to a sink
+         */
+        INCOMPATIBLE_VALUE
     }
 
     /**
@@ -56,21 +61,17 @@ namespace GtkFlow {
          */
         protected GLib.Value val;
 
-        public Dock(GLib.Value initial) {
+        /**
+         * Initialize this with a value
+         */
+        protected Dock(GLib.Value initial) {
             this.val = initial;
         }
 
         /**
-         * Make variant typecheck of value available to the outside world
+         * This signal is being triggered, when there is a connection being established
+         * from or to this Dock.
          */
-        public virtual bool is_of_type(GLib.Type v){
-            return this.val.type() == v;
-        }
-
-        public virtual Type type() {
-            return this.val.type();
-        }
-
         public signal void connected(Dock d);
     }
 
@@ -80,14 +81,43 @@ namespace GtkFlow {
      */
     public class Source : Dock {
         private Gee.ArrayList<Sink> sinks;
-        public virtual void add_sink(Sink s) throws NodeError {
-            if (!this.sinks.contains(s))
-                this.sinks.add(s);
-        }
 
         public Source(GLib.Value initial) {
             base(initial);
             this.sinks = new Gee.ArrayList<Sink>();
+        }
+
+        public void set_value(GLib.Value v) throws NodeError {
+            if (this.val.type() != v.type())
+                throw new NodeError.INCOMPATIBLE_VALUE(
+                    "Cannot set a %s value to this %s Source".printf(
+                        v.type().name(),this.val.type().name())
+                );
+            this.val = v;
+            foreach (Sink s in this.sinks)
+                s.changed(v);
+        }
+
+        public virtual void add_sink(Sink s) throws NodeError {
+            if (this.val.type() != s.val.type()) {
+                throw new NodeError.INCOMPATIBLE_SINKTYPE(
+                    "Can't connect. Sink has type %s while Source has type %s".printf(
+                        s.val.type().name(), this.val.type().name()
+                    )
+                );
+            }
+            if (!this.sinks.contains(s))
+                this.sinks.add(s);
+            if (!s.connected_to(this))
+                s.set_source(this);
+            s.changed(this.val);
+        }
+
+        /**
+         * Returns true if this Source is connected to the given Sink
+         */
+        public bool connected_to(Sink s) {
+            return this.sinks.contains(s);
         }
     }
 
@@ -112,27 +142,88 @@ namespace GtkFlow {
         }
 
         public virtual void set_source(Source s) throws NodeError{
+            if (this.val.type() != s.val.type()) {
+                throw new NodeError.INCOMPATIBLE_SOURCETYPE(
+                    "Can't connect. Source has type %s while Sink has type %s".printf(
+                        s.val.type().name(), this.val.type().name()
+                    )
+                );
+            }
             this._source = s;
+            if (!this._source.connected_to(this))
+                this._source.add_sink(this);
             this.connected(s);
+        }
+
+        /**
+         * Returns true if this Sink is connected to the given Source
+         */
+        public bool connected_to(Source s) {
+            return this.source == s;
         }
 
         public signal void changed(GLib.Value v);
     }
 
-    public class Node : GLib.Object {
+    /**
+     * Represents an element that can generate, process or receive data
+     * This is done by adding Sources and Sinks to it. The inner logic of
+     * The node can be represented towards the user as arbitrary Gtk widget.
+     */
+    public class Node : Gtk.Bin {
         private int x = 0;
         private int y = 0;
 
+        private Gee.ArrayList<Source> sources;
+        private Gee.ArrayList<Sink> sinks;
+
+        public Node () {
+            this.sources = new Gee.ArrayList<Source>();
+            this.sinks = new Gee.ArrayList<Sink>();
+        }
 
         public void add_source(Source s) {
+            if (!this.sources.contains(s))
+                sources.add(s);
         }
 
         public void add_sink(Sink s) {
+            if (!this.sinks.contains(s))
+                sinks.add(s);
+        }
+
+        public void remove_source(Source s) {
+            if (this.sources.contains(s))
+                sources.remove(s);
+        }
+
+        public void remove_sink(Sink s) {
+            if (this.sinks.contains(s))
+                sinks.remove(s);
         }
     }
 
+    /**
+     * A Gtk Widget that shows nodes and their connections to the user
+     * It also lets the user edit said connections.
+     */
     public class NodeView : Gtk.Widget {
+        private Gee.ArrayList<Node> nodes;
+
+
+        public NodeView() {
+            base();
+            this.nodes = new Gee.ArrayList<Node>();
+        }
+
         public void add_node(Node n) {
+            if (!this.nodes.contains(n))
+                this.nodes.add(n);
+        }
+
+        public void remove_node(Node n) {
+            if (this.nodes.contains(n))
+                this.nodes.remove(n);
         }
 
         public override bool draw(Cairo.Context cr) {
