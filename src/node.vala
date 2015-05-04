@@ -85,11 +85,10 @@ namespace GtkFlow {
      * A Source can provide a multitude of Sinks with data.
      */
     public class Source : Dock {
-        private Gee.ArrayList<Sink> sinks;
+        private Gee.ArrayList<Sink> sinks = new Gee.ArrayList<Sink>();
 
         public Source(GLib.Value initial) {
             base(initial);
-            this.sinks = new Gee.ArrayList<Sink>();
         }
 
         public void set_value(GLib.Value v) throws NodeError {
@@ -199,12 +198,10 @@ namespace GtkFlow {
         private int x = 0;
         private int y = 0;
 
-        private Gee.ArrayList<Source> sources;
-        private Gee.ArrayList<Sink> sinks;
+        private Gee.ArrayList<Source> sources = new Gee.ArrayList<Source>();
+        private Gee.ArrayList<Sink> sinks = new Gee.ArrayList<Sink>();
 
         public Node () {
-            this.sources = new Gee.ArrayList<Source>();
-            this.sinks = new Gee.ArrayList<Sink>();
         }
 
         public void add_source(Source s) {
@@ -233,12 +230,11 @@ namespace GtkFlow {
      * It also lets the user edit said connections.
      */
     public class NodeView : Gtk.Widget {
-        private Gee.ArrayList<Node> nodes;
+        private Gee.ArrayList<Node> nodes = new Gee.ArrayList<Node>();
 
 
         public NodeView() {
             base();
-            this.nodes = new Gee.ArrayList<Node>();
         }
 
         public void add_node(Node n) {

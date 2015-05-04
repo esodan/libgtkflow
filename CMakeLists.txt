@@ -98,6 +98,15 @@ add_custom_target(typelib ALL
         "Creating typelib"
 )
 
+add_custom_target(testing
+    DEPENDS
+        gtkflow
+    COMMAND
+        ./test/run_tests.sh
+    COMMENT
+        "Running Unittests"
+)
+
 install(FILES "include/gtkflow.h" DESTINATION include )
 install(FILES GtkFlow-${VERSION}.typelib DESTINATION lib/girepository-1.0)
 if (GEE10)
