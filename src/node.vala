@@ -223,6 +223,14 @@ namespace GtkFlow {
             if (this.sinks.contains(s))
                 sinks.remove(s);
         }
+
+        /**
+         * Draw this node on the given cairo context
+         * TODO: implement
+         */
+        public void draw(Cairo.Context cr) {
+            
+        }
     }
 
     /**
@@ -235,6 +243,7 @@ namespace GtkFlow {
 
         public NodeView() {
             base();
+            this.set_size_request(100,100);
         }
 
         public void add_node(Node n) {
@@ -248,7 +257,37 @@ namespace GtkFlow {
         }
 
         public override bool draw(Cairo.Context cr) {
+            Gtk.StyleContext sc = this.get_style_context();
+            Gdk.RGBA bg = sc.get_background_color(Gtk.StateFlags.NORMAL);
+            cr.set_source_rgba(bg.red, bg.green, bg.blue, bg.alpha);
+            cr.paint();
+            Gtk.Allocation alloc;
+            this.get_allocation(out alloc);
+            stdout.printf("%d %d\n", alloc.height, alloc.width);
+            sc.set_state(Gtk.StateFlags.ACTIVE);
+            sc.render_option(cr, 20,20,10,10);
             return true;
+        }
+
+        public override void realize() {
+            Gtk.Allocation alloc;
+            this.get_allocation(out alloc);
+            var attr = Gdk.WindowAttr();
+            attr.window_type = Gdk.WindowType.CHILD;
+            attr.x = alloc.x;
+            attr.y = alloc.y;
+            attr.width = alloc.width;
+            attr.height = alloc.height;
+            attr.visual = this.get_visual();
+            attr.event_mask = this.get_events();
+            Gdk.WindowAttributesType mask = Gdk.WindowAttributesType.X 
+                 | Gdk.WindowAttributesType.X 
+                 | Gdk.WindowAttributesType.VISUAL;
+            var window = new Gdk.Window(this.get_parent_window(), attr, mask);
+            this.set_window(window);
+            this.register_window(window);
+            this.set_realized(true);
+            window.set_background_pattern(null);
         }
     }
 }
