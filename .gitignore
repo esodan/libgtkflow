@@ -14,3 +14,4 @@ libgtkflow.so
 GtkFlow-*.typelib
 GtkFlow-*.gir
 
+__pycache__
