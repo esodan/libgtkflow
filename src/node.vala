@@ -53,8 +53,12 @@ namespace GtkFlow {
      * data with the same VariantType can be interconnected.
      */
     public abstract class Dock : GLib.Object {
-        public int x = 0;
-        public int y = 0;
+        public const int HEIGHT = 10;
+
+        private int x = 0;
+        private int y = 0;
+
+        public virtual string label {get;set;default="";}
 
         /**
          * A reference to the node this Dock resides in
@@ -78,6 +82,8 @@ namespace GtkFlow {
          * from or to this Dock.
          */
         public signal void connected(Dock d);
+
+        public abstract bool is_connected();
     }
 
     /**
@@ -122,6 +128,13 @@ namespace GtkFlow {
          */
         public bool connected_to(Sink s) {
             return this.sinks.contains(s);
+        }
+
+        /**
+         * Returns true if this Source is connected to one or more Sinks
+         */
+        public override bool is_connected() {
+            return this.sinks.size > 0;
         }
     }
 
@@ -179,6 +192,13 @@ namespace GtkFlow {
             return this.source == s;
         }
 
+        /**
+         * Returns true if this sink is connected to a source
+         */
+        public override bool is_connected() {
+            return this.source != null;
+        }
+
         public void change_value(GLib.Value v) {
             this.val = v;
             this.changed(v);
@@ -228,8 +248,59 @@ namespace GtkFlow {
          * Draw this node on the given cairo context
          * TODO: implement
          */
-        public void draw(Cairo.Context cr) {
-            
+        public void draw_node(Cairo.Context cr) {
+            //Determine height of widget
+            Gtk.Widget child = this.get_child();
+            uint min_width, max_width, min_height, max_height = 10;
+            min_width = max_width = 2 * this.border_width;
+            min_height = max_height = 2 * this.border_width;
+            if (child != null) {
+                int cmw, cmh, cpw, cph = 0;
+                child.get_preferred_width(out cmw, out cpw);
+                child.get_preferred_height(out cmh, out cph);
+                min_width += cmw;
+                min_height += cmh;
+                max_width += cpw;
+                max_height += cph;
+            }
+            // TODO: correctly determine the height of the docks
+            min_height += this.sinks.size * Dock.HEIGHT;
+            max_height += this.sources.size * Dock.HEIGHT;
+
+            stdout.printf("minw %u minh %u maxw %u maxh %u\n", min_width, min_height, max_width, max_height);
+
+            Gtk.StyleContext sc = this.get_style_context();
+            cr.set_source_rgba(0,1,0,1.0);
+            cr.rectangle(30,30,max_width,max_height);
+            cr.fill();
+            sc.save();
+            sc.render_background(cr, this.x, this.y, 100,100);
+            sc.set_state(Gtk.StateFlags.INSENSITIVE);
+            sc.add_class(Gtk.STYLE_CLASS_FRAME);
+            sc.render_frame(cr, this.x, this.y, 100,100);
+            sc.restore();
+
+            sc.save();
+            sc.set_state(Gtk.StateFlags.CHECKED);
+            sc.add_class(Gtk.STYLE_CLASS_RADIO);
+            sc.render_option(cr, 20,20,10,10);
+            sc.restore();
+
+            sc.save();
+            sc.set_state(Gtk.StateFlags.ACTIVE);
+            sc.add_class(Gtk.STYLE_CLASS_RADIO);
+            sc.render_option(cr, 20,50,10,10);
+            sc.restore();
+            sc.save();
+            sc.set_state(Gtk.StateFlags.PRELIGHT);
+            sc.add_class(Gtk.STYLE_CLASS_RADIO);
+            sc.render_option(cr, 20,40,10,10);
+            sc.restore();
+            sc.save();
+            sc.set_state(Gtk.StateFlags.ACTIVE | Gtk.StateFlags.CHECKED);
+            sc.add_class(Gtk.STYLE_CLASS_RADIO);
+            sc.render_option(cr, 20,70,10,10);
+            sc.restore();
         }
     }
 
@@ -264,8 +335,8 @@ namespace GtkFlow {
             Gtk.Allocation alloc;
             this.get_allocation(out alloc);
             stdout.printf("%d %d\n", alloc.height, alloc.width);
-            sc.set_state(Gtk.StateFlags.ACTIVE);
-            sc.render_option(cr, 20,20,10,10);
+            foreach (Node n in this.nodes)
+                n.draw_node(cr);
             return true;
         }
 
