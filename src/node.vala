@@ -295,7 +295,6 @@ namespace GtkFlow {
             cr.fill();
             sc.save();
             sc.render_background(cr, alloc.x, alloc.y, 100,100);
-            sc.set_state(Gtk.StateFlags.INSENSITIVE);
             sc.add_class(Gtk.STYLE_CLASS_FRAME);
             sc.render_frame(cr, alloc.x, alloc.y, 100,100);
             sc.restore();
@@ -334,7 +333,7 @@ namespace GtkFlow {
         private Gee.ArrayList<Node> nodes = new Gee.ArrayList<Node>();
    
         // The node that is currently being dragged around
-        private const int DRAG_THRESHOLD = 5;
+        private const int DRAG_THRESHOLD = 3;
         private Node? drag_node = null;
         private bool drag_threshold_fulfilled = false;
         // Coordinates where the drag started
@@ -380,7 +379,7 @@ namespace GtkFlow {
             if (n != null && this.drag_node == null) {
                 this.drag_node = n;
                 Gtk.Allocation alloc;
-                this.drag_node.get_allocation(out alloc);
+                this.drag_node.get_node_allocation(out alloc);
                 this.drag_start_x = e.x;
                 this.drag_start_y = e.y;
                 this.drag_diff_x = (int)this.drag_start_x - alloc.x;
@@ -390,14 +389,18 @@ namespace GtkFlow {
         }
 
         public override bool button_release_event(Gdk.EventButton e) {
+            this.stop_dragging();
+            stdout.printf("release %d %d\n", (int)e.x, (int)e.y);
+            return false;
+        }
+
+        private void stop_dragging() {
             this.drag_start_x = 0;
             this.drag_start_y = 0;
             this.drag_diff_x = 0;
             this.drag_diff_y = 0;
             this.drag_node = null;
             this.drag_threshold_fulfilled = false;
-            stdout.printf("release %d %d\n",(int)e.x, (int)e.y);
-            return false;
         }
 
         public override bool motion_notify_event(Gdk.EventMotion e) {
@@ -421,7 +424,7 @@ namespace GtkFlow {
         }
 
         public override bool leave_notify_event(Gdk.EventCrossing e) {
-            stdout.printf("leave\n");
+            this.stop_dragging();
             return false;
         }
 
