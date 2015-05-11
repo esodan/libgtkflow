@@ -52,13 +52,16 @@ namespace GtkFlow {
      * in this endpoint is stored as GLib.Value. Only Docks that contain
      * data with the same VariantType can be interconnected.
      */
-    public abstract class Dock : GLib.Object {
+    public abstract class Dock : Gtk.Widget {
         public const int HEIGHT = 10;
 
         private int x = 0;
         private int y = 0;
 
-        public virtual string label {get;set;default="";}
+        protected Gtk.StyleContext style_context;
+        protected Pango.Layout layout;
+
+        protected string label = "";
 
         /**
          * A reference to the node this Dock resides in
@@ -71,10 +74,28 @@ namespace GtkFlow {
         protected GLib.Value val;
 
         /**
+         * Set the labelstring
+         */
+        public virtual void set_label (string label) {
+            this.label = label;
+            this.layout.set_text(label, -1);
+            this.size_changed();
+        }
+
+        /**
+         * Returns the current labelstring
+         */
+        public virtual string get_label() {
+            return this.label;
+        }
+
+        /**
          * Initialize this with a value
          */
         protected Dock(GLib.Value initial) {
+            base();
             this.val = initial;
+            this.layout = this.create_pango_layout(this.label);
         }
 
         /**
@@ -83,7 +104,32 @@ namespace GtkFlow {
          */
         public signal void connected(Dock d);
 
+        /**
+         * Triggers when something leads to this dock chaging in size
+         */
+        public signal void size_changed();
+
         public abstract bool is_connected();
+
+        /**
+         * Get the minimum width for this dock
+         */
+        public virtual int get_min_height() {
+            stdout.printf(this.label+"\n");
+            int width, height;
+            this.layout.get_pixel_size(out width, out height);
+            return (int)Math.fmax(height, Dock.HEIGHT);
+        }
+
+        /**
+         * Get the minimum height for this dock
+         */
+        public virtual int get_min_width() {
+            stdout.printf(this.label+"\n");
+            int width, height;
+            this.layout.get_pixel_size(out width, out height);
+            return (int)(width + Dock.HEIGHT);
+        }
     }
 
     /**
@@ -135,6 +181,22 @@ namespace GtkFlow {
          */
         public override bool is_connected() {
             return this.sinks.size > 0;
+        }
+
+        /**
+         * Draw this source onto a cairo context
+         */
+        public void draw_source(Cairo.Context cr, int offset_x, int offset_y, int width) {
+            Gtk.StyleContext sc = this.get_style_context();
+            sc.save();
+            if (this.is_connected())
+                sc.set_state(Gtk.StateFlags.CHECKED);
+            sc.add_class(Gtk.STYLE_CLASS_RADIO);
+            sc.render_option(cr, offset_x+width-Dock.HEIGHT,offset_y,Dock.HEIGHT,Dock.HEIGHT);
+            sc.restore();
+            cr.set_source_rgba(0,1,0,1.0);
+            cr.move_to(offset_x + width - this.get_min_width() - Dock.HEIGHT,offset_y);
+            Pango.cairo_show_layout(cr, this.layout);
         }
     }
 
@@ -207,6 +269,19 @@ namespace GtkFlow {
         public virtual signal void changed(GLib.Value v) {
             this.val = v;
         }
+
+        public void draw_sink(Cairo.Context cr, int offset_x, int offset_y) {
+            Gtk.StyleContext sc = this.get_style_context();
+            sc.save();
+            if (this.is_connected())
+                sc.set_state(Gtk.StateFlags.CHECKED);
+            sc.add_class(Gtk.STYLE_CLASS_RADIO);
+            sc.render_option(cr, offset_x,offset_y,Dock.HEIGHT,Dock.HEIGHT);
+            sc.restore();
+            cr.set_source_rgba(0,1,0,1.0);
+            cr.move_to(offset_x+Dock.HEIGHT,offset_y);
+            Pango.cairo_show_layout(cr, this.layout);
+        }
     }
 
     /**
@@ -221,14 +296,8 @@ namespace GtkFlow {
         private Gtk.Allocation node_allocation;
 
         public Node () {
-            this.node_allocation = {0,0,100,100};
-            Gtk.Allocation alloc;
-            this.get_allocation(out alloc);
-            alloc.x = 5;
-            this.set_allocation(alloc);
-            Gtk.Allocation alloc2;
-            this.get_allocation(out alloc2);
-            stdout.printf("%i %i %i %i\n", alloc2.x, alloc2.y, alloc2.width, alloc2.height);
+            this.node_allocation = {0,0,00,00};
+            this.recalculate_size();
         }
 
         public void set_node_allocation(Gtk.Allocation alloc) {
@@ -243,23 +312,108 @@ namespace GtkFlow {
         }
 
         public void add_source(Source s) {
-            if (!this.sources.contains(s))
+            if (!this.sources.contains(s)) {
                 sources.add(s);
+                this.recalculate_size();
+                s.size_changed.connect(this.recalculate_size);
+            }
         }
 
         public void add_sink(Sink s) {
-            if (!this.sinks.contains(s))
+            if (!this.sinks.contains(s)) {
                 sinks.add(s);
+                this.recalculate_size();
+                s.size_changed.connect(this.recalculate_size);
+            }
         }
 
         public void remove_source(Source s) {
-            if (this.sources.contains(s))
+            if (this.sources.contains(s)) {
                 sources.remove(s);
+                this.recalculate_size();
+                s.size_changed.disconnect(this.recalculate_size);
+            }
         }
 
         public void remove_sink(Sink s) {
-            if (this.sinks.contains(s))
+            if (this.sinks.contains(s)) {
                 sinks.remove(s);
+                this.recalculate_size();
+                s.size_changed.disconnect(this.recalculate_size);
+            }
+        }
+
+        public bool motion_notify_event(Gdk.EventMotion e) {
+            // Determine x/y coords relative to this node's zero coordinates
+            Gtk.Allocation alloc;
+            this.get_node_allocation(out alloc);
+            int local_x = (int)e.x - alloc.x;
+            int local_y = (int)e.y - alloc.y;
+            return true;
+        }
+
+        /**
+         * Checks if the node needs to be resized in order to fill the minimum
+         * size requirements
+         */
+        public void recalculate_size() {
+            Gtk.Allocation alloc;
+            this.get_node_allocation(out alloc);
+            uint mw = this.get_min_width();
+            uint mh = this.get_min_height();
+            if (mw > alloc.width)
+                alloc.width = (int)mw;
+            if (mh > alloc.height)
+                alloc.height = (int)mh;
+            this.set_node_allocation(alloc);
+        }
+
+        /**
+         * Returns the minimum height this node has to have
+         */
+        public uint get_min_height() {
+            uint mw = this.border_width*2;
+            foreach (Dock d in this.sinks) {
+                mw += d.get_min_height();
+            }
+            foreach (Dock d in this.sources) {
+                mw += d.get_min_height();
+            }
+            Gtk.Widget child = this.get_child();
+            if (child != null) {
+                Gtk.Allocation alloc;
+                child.get_allocation(out alloc);
+                mw += alloc.height;
+            }
+            stdout.printf("min_height: %u\n", mw);
+            return mw;
+        }
+
+        /**
+         * Returns the minimum width this node has to have
+         */
+        public uint get_min_width() {
+            uint mw = 0;
+            int t = 0;
+            foreach (Dock d in this.sinks) {
+                t = d.get_min_width();
+                if (t > mw)
+                    mw = t;
+            }
+            foreach (Dock d in this.sources) {
+                t = d.get_min_width();
+                if (t > mw)
+                    mw = t;
+            }
+            Gtk.Widget child = this.get_child();
+            if (child != null) {
+                Gtk.Allocation alloc;
+                child.get_allocation(out alloc);
+                if (alloc.width > mw)
+                    mw = alloc.width;
+            }
+            stdout.printf("min_width: %u\n", mw);
+            return mw + this.border_width*2;
         }
 
         /**
@@ -269,34 +423,22 @@ namespace GtkFlow {
         public void draw_node(Cairo.Context cr) {
             Gtk.Allocation alloc;
             this.get_node_allocation(out alloc);
-            //Determine height of widget
-            Gtk.Widget child = this.get_child();
-            uint min_width, max_width, min_height, max_height = 10;
-            min_width = max_width = 2 * this.border_width;
-            min_height = max_height = 2 * this.border_width;
-            if (child != null) {
-                int cmw, cmh, cpw, cph = 0;
-                child.get_preferred_width(out cmw, out cpw);
-                child.get_preferred_height(out cmh, out cph);
-                min_width += cmw;
-                min_height += cmh;
-                max_width += cpw;
-                max_height += cph;
-            }
-            // TODO: correctly determine the height of the docks
-            min_height += this.sinks.size * Dock.HEIGHT;
-            max_height += this.sources.size * Dock.HEIGHT;
 
-            stdout.printf("minw %u minh %u maxw %u maxh %u\n", min_width, min_height, max_width, max_height);
+            int y_offset = 0;
+            foreach (Sink s in this.sinks) {
+                s.draw_sink(cr, alloc.x, alloc.y+y_offset);
+                y_offset += s.get_min_height();
+            }
+            foreach (Source s in this.sources) {
+                s.draw_source(cr, alloc.x, alloc.y+y_offset, alloc.width);
+                y_offset += s.get_min_height();
+            }
 
             Gtk.StyleContext sc = this.get_style_context();
-            cr.set_source_rgba(0,1,0,1.0);
-            cr.rectangle(30,30,max_width,max_height);
-            cr.fill();
             sc.save();
-            sc.render_background(cr, alloc.x, alloc.y, 100,100);
+            sc.render_background(cr, alloc.x, alloc.y, alloc.width, alloc.height);
             sc.add_class(Gtk.STYLE_CLASS_FRAME);
-            sc.render_frame(cr, alloc.x, alloc.y, 100,100);
+            sc.render_frame(cr, alloc.x, alloc.y, alloc.width, alloc.height);
             sc.restore();
 
             sc.save();
@@ -405,6 +547,15 @@ namespace GtkFlow {
 
         public override bool motion_notify_event(Gdk.EventMotion e) {
             stdout.printf("motion %d %d\n", (int)e.x, (int)e.y);
+
+            // Check if we are on a node. If yes, check if we are
+            // currently pointing on a dock. if this is true, we
+            // Want to draw a new connector instead of dragging the node
+            Node? n = this.get_node_on_position(e.x, e.y);
+            if (n != null) {
+                n.motion_notify_event(e);
+            }
+
             // Check if the cursor has been dragged a few pixels (defined by DRAG_THRESHOLD)
             // If yes, actually start dragging
             if ( this.drag_node != null
@@ -412,6 +563,7 @@ namespace GtkFlow {
                     ||  Math.fabs(drag_start_y - e.y) > NodeView.DRAG_THRESHOLD )) {
                 this.drag_threshold_fulfilled = true;
             }
+
             // Actually move the node
             if (this.drag_threshold_fulfilled && this.drag_node != null) {
                 Gtk.Allocation alloc;
