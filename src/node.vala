@@ -194,9 +194,14 @@ namespace GtkFlow {
             sc.add_class(Gtk.STYLE_CLASS_RADIO);
             sc.render_option(cr, offset_x+width-Dock.HEIGHT,offset_y,Dock.HEIGHT,Dock.HEIGHT);
             sc.restore();
-            cr.set_source_rgba(0,1,0,1.0);
-            cr.move_to(offset_x + width - this.get_min_width() - Dock.HEIGHT,offset_y);
+            sc.save();
+            sc.add_class(Gtk.STYLE_CLASS_BUTTON);
+            Gdk.RGBA col = sc.get_color(Gtk.StateFlags.NORMAL);
+            stdout.printf("%d %d %d\n", (int)col.red, (int)col.green, (int)col.blue);
+            cr.set_source_rgba(col.red,col.green,col.blue,col.alpha);
+            cr.move_to(offset_x + width - this.get_min_width(),offset_y);
             Pango.cairo_show_layout(cr, this.layout);
+            sc.restore();
         }
     }
 
@@ -278,9 +283,13 @@ namespace GtkFlow {
             sc.add_class(Gtk.STYLE_CLASS_RADIO);
             sc.render_option(cr, offset_x,offset_y,Dock.HEIGHT,Dock.HEIGHT);
             sc.restore();
-            cr.set_source_rgba(0,1,0,1.0);
+            sc.save();
+            sc.add_class(Gtk.STYLE_CLASS_BUTTON);
+            Gdk.RGBA col = sc.get_color(Gtk.StateFlags.NORMAL);
+            cr.set_source_rgba(col.red,col.green,col.blue,col.alpha);
             cr.move_to(offset_x+Dock.HEIGHT,offset_y);
             Pango.cairo_show_layout(cr, this.layout);
+            sc.restore();
         }
     }
 
