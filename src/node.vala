@@ -407,8 +407,9 @@ namespace GtkFlow {
             stdout.printf("motion %d %d\n", (int)e.x, (int)e.y);
             // Check if the cursor has been dragged a few pixels (defined by DRAG_THRESHOLD)
             // If yes, actually start dragging
-            if (Math.fabs(drag_start_x - e.x) > NodeView.DRAG_THRESHOLD
-                    || Math.fabs(drag_start_y - e.y) > NodeView.DRAG_THRESHOLD) {
+            if ( this.drag_node != null
+                    && (Math.fabs(drag_start_x - e.x) > NodeView.DRAG_THRESHOLD
+                    ||  Math.fabs(drag_start_y - e.y) > NodeView.DRAG_THRESHOLD )) {
                 this.drag_threshold_fulfilled = true;
             }
             // Actually move the node
@@ -452,7 +453,7 @@ namespace GtkFlow {
             attr.height = alloc.height;
             attr.visual = this.get_visual();
             attr.event_mask = this.get_events()
-                 | Gdk.EventMask.BUTTON1_MOTION_MASK
+                 | Gdk.EventMask.POINTER_MOTION_MASK
                  | Gdk.EventMask.BUTTON_PRESS_MASK
                  | Gdk.EventMask.BUTTON_RELEASE_MASK
                  | Gdk.EventMask.LEAVE_NOTIFY_MASK;
