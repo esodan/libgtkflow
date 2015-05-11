@@ -215,13 +215,31 @@ namespace GtkFlow {
      * The node can be represented towards the user as arbitrary Gtk widget.
      */
     public class Node : Gtk.Bin {
-        private int x = 0;
-        private int y = 0;
-
         private Gee.ArrayList<Source> sources = new Gee.ArrayList<Source>();
         private Gee.ArrayList<Sink> sinks = new Gee.ArrayList<Sink>();
 
+        private Gtk.Allocation node_allocation;
+
         public Node () {
+            this.node_allocation = {0,0,100,100};
+            Gtk.Allocation alloc;
+            this.get_allocation(out alloc);
+            alloc.x = 5;
+            this.set_allocation(alloc);
+            Gtk.Allocation alloc2;
+            this.get_allocation(out alloc2);
+            stdout.printf("%i %i %i %i\n", alloc2.x, alloc2.y, alloc2.width, alloc2.height);
+        }
+
+        public void set_node_allocation(Gtk.Allocation alloc) {
+            this.node_allocation = alloc;
+        }
+
+        public void get_node_allocation(out Gtk.Allocation alloc) {
+            alloc.x = this.node_allocation.x;
+            alloc.y = this.node_allocation.y;
+            alloc.width = this.node_allocation.width;
+            alloc.height = this.node_allocation.height;
         }
 
         public void add_source(Source s) {
@@ -249,6 +267,8 @@ namespace GtkFlow {
          * TODO: implement
          */
         public void draw_node(Cairo.Context cr) {
+            Gtk.Allocation alloc;
+            this.get_node_allocation(out alloc);
             //Determine height of widget
             Gtk.Widget child = this.get_child();
             uint min_width, max_width, min_height, max_height = 10;
@@ -274,10 +294,10 @@ namespace GtkFlow {
             cr.rectangle(30,30,max_width,max_height);
             cr.fill();
             sc.save();
-            sc.render_background(cr, this.x, this.y, 100,100);
+            sc.render_background(cr, alloc.x, alloc.y, 100,100);
             sc.set_state(Gtk.StateFlags.INSENSITIVE);
             sc.add_class(Gtk.STYLE_CLASS_FRAME);
-            sc.render_frame(cr, this.x, this.y, 100,100);
+            sc.render_frame(cr, alloc.x, alloc.y, 100,100);
             sc.restore();
 
             sc.save();
@@ -301,6 +321,8 @@ namespace GtkFlow {
             sc.add_class(Gtk.STYLE_CLASS_RADIO);
             sc.render_option(cr, 20,70,10,10);
             sc.restore();
+            
+            this.propagate_draw(this.get_child(), cr);
         }
     }
 
@@ -310,7 +332,18 @@ namespace GtkFlow {
      */
     public class NodeView : Gtk.Widget {
         private Gee.ArrayList<Node> nodes = new Gee.ArrayList<Node>();
-
+   
+        // The node that is currently being dragged around
+        private const int DRAG_THRESHOLD = 5;
+        private Node? drag_node = null;
+        private bool drag_threshold_fulfilled = false;
+        // Coordinates where the drag started
+        private double drag_start_x = 0;
+        private double drag_start_y = 0;
+        // Difference from the chosen drag-point to the 
+        // upper left corner of the drag_node
+        private int drag_diff_x = 0;
+        private int drag_diff_y = 0;
 
         public NodeView() {
             base();
@@ -325,6 +358,71 @@ namespace GtkFlow {
         public void remove_node(Node n) {
             if (this.nodes.contains(n))
                 this.nodes.remove(n);
+        }
+
+        private Node? get_node_on_position(double x,double y) {
+            Gtk.Allocation alloc;
+            foreach (Node n in this.nodes) {
+                n.get_node_allocation(out alloc);
+                if ( x >= alloc.x && y >= alloc.y &&
+                         x <= alloc.x + alloc.width && y <= alloc.y + alloc.height ) {
+                    stdout.printf("habemus node\n");
+                    return n;
+                }
+            }
+            return null;
+        }
+
+        public override bool button_press_event(Gdk.EventButton e) {
+            stdout.printf("press %d %d\n",(int)e.x, (int)e.y);
+            Node? n = this.get_node_on_position(e.x, e.y);
+            // Set a new drag node.
+            if (n != null && this.drag_node == null) {
+                this.drag_node = n;
+                Gtk.Allocation alloc;
+                this.drag_node.get_allocation(out alloc);
+                this.drag_start_x = e.x;
+                this.drag_start_y = e.y;
+                this.drag_diff_x = (int)this.drag_start_x - alloc.x;
+                this.drag_diff_y = (int)this.drag_start_y - alloc.y;
+            }
+            return false;
+        }
+
+        public override bool button_release_event(Gdk.EventButton e) {
+            this.drag_start_x = 0;
+            this.drag_start_y = 0;
+            this.drag_diff_x = 0;
+            this.drag_diff_y = 0;
+            this.drag_node = null;
+            this.drag_threshold_fulfilled = false;
+            stdout.printf("release %d %d\n",(int)e.x, (int)e.y);
+            return false;
+        }
+
+        public override bool motion_notify_event(Gdk.EventMotion e) {
+            stdout.printf("motion %d %d\n", (int)e.x, (int)e.y);
+            // Check if the cursor has been dragged a few pixels (defined by DRAG_THRESHOLD)
+            // If yes, actually start dragging
+            if (Math.fabs(drag_start_x - e.x) > NodeView.DRAG_THRESHOLD
+                    || Math.fabs(drag_start_y - e.y) > NodeView.DRAG_THRESHOLD) {
+                this.drag_threshold_fulfilled = true;
+            }
+            // Actually move the node
+            if (this.drag_threshold_fulfilled && this.drag_node != null) {
+                Gtk.Allocation alloc;
+                this.drag_node.get_node_allocation(out alloc);
+                alloc.x = (int)e.x - this.drag_diff_x;
+                alloc.y = (int)e.y - this.drag_diff_y;
+                this.drag_node.set_node_allocation(alloc);
+                this.queue_draw();
+            }
+            return false;
+        }
+
+        public override bool leave_notify_event(Gdk.EventCrossing e) {
+            stdout.printf("leave\n");
+            return false;
         }
 
         public override bool draw(Cairo.Context cr) {
@@ -350,7 +448,11 @@ namespace GtkFlow {
             attr.width = alloc.width;
             attr.height = alloc.height;
             attr.visual = this.get_visual();
-            attr.event_mask = this.get_events();
+            attr.event_mask = this.get_events()
+                 | Gdk.EventMask.BUTTON1_MOTION_MASK
+                 | Gdk.EventMask.BUTTON_PRESS_MASK
+                 | Gdk.EventMask.BUTTON_RELEASE_MASK
+                 | Gdk.EventMask.LEAVE_NOTIFY_MASK;
             Gdk.WindowAttributesType mask = Gdk.WindowAttributesType.X 
                  | Gdk.WindowAttributesType.X 
                  | Gdk.WindowAttributesType.VISUAL;
