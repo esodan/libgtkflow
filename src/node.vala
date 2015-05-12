@@ -53,7 +53,9 @@ namespace GtkFlow {
      * data with the same VariantType can be interconnected.
      */
     public abstract class Dock : Gtk.Widget {
-        public const int HEIGHT = 10;
+        public const int HEIGHT = 15;
+        public const int SPACING_X = 5;
+        public const int SPACING_Y = 3;
 
         private int x = 0;
         private int y = 0;
@@ -118,7 +120,7 @@ namespace GtkFlow {
             stdout.printf(this.label+"\n");
             int width, height;
             this.layout.get_pixel_size(out width, out height);
-            return (int)Math.fmax(height, Dock.HEIGHT);
+            return (int)(Math.fmax(height, Dock.HEIGHT))+Dock.SPACING_Y;
         }
 
         /**
@@ -128,7 +130,7 @@ namespace GtkFlow {
             stdout.printf(this.label+"\n");
             int width, height;
             this.layout.get_pixel_size(out width, out height);
-            return (int)(width + Dock.HEIGHT);
+            return (int)(width + Dock.HEIGHT + Dock.SPACING_X);
         }
     }
 
@@ -199,7 +201,7 @@ namespace GtkFlow {
             Gdk.RGBA col = sc.get_color(Gtk.StateFlags.NORMAL);
             stdout.printf("%d %d %d\n", (int)col.red, (int)col.green, (int)col.blue);
             cr.set_source_rgba(col.red,col.green,col.blue,col.alpha);
-            cr.move_to(offset_x + width - this.get_min_width(),offset_y);
+            cr.move_to(offset_x + width - this.get_min_width() - Dock.SPACING_X, offset_y);
             Pango.cairo_show_layout(cr, this.layout);
             sc.restore();
         }
@@ -287,9 +289,14 @@ namespace GtkFlow {
             sc.add_class(Gtk.STYLE_CLASS_BUTTON);
             Gdk.RGBA col = sc.get_color(Gtk.StateFlags.NORMAL);
             cr.set_source_rgba(col.red,col.green,col.blue,col.alpha);
-            cr.move_to(offset_x+Dock.HEIGHT,offset_y);
+            cr.move_to(offset_x+Dock.HEIGHT+Dock.SPACING_X, offset_y);
             Pango.cairo_show_layout(cr, this.layout);
             sc.restore();
+
+            /*
+            Important stateflags
+            sc.set_state(Gtk.StateFlags.ACTIVE | Gtk.StateFlags.CHECKED | Gtk.StateFlags.PRELIGHT);
+            */
         }
     }
 
@@ -450,28 +457,6 @@ namespace GtkFlow {
             sc.render_frame(cr, alloc.x, alloc.y, alloc.width, alloc.height);
             sc.restore();
 
-            sc.save();
-            sc.set_state(Gtk.StateFlags.CHECKED);
-            sc.add_class(Gtk.STYLE_CLASS_RADIO);
-            sc.render_option(cr, 20,20,10,10);
-            sc.restore();
-
-            sc.save();
-            sc.set_state(Gtk.StateFlags.ACTIVE);
-            sc.add_class(Gtk.STYLE_CLASS_RADIO);
-            sc.render_option(cr, 20,50,10,10);
-            sc.restore();
-            sc.save();
-            sc.set_state(Gtk.StateFlags.PRELIGHT);
-            sc.add_class(Gtk.STYLE_CLASS_RADIO);
-            sc.render_option(cr, 20,40,10,10);
-            sc.restore();
-            sc.save();
-            sc.set_state(Gtk.StateFlags.ACTIVE | Gtk.StateFlags.CHECKED);
-            sc.add_class(Gtk.STYLE_CLASS_RADIO);
-            sc.render_option(cr, 20,70,10,10);
-            sc.restore();
-            
             this.propagate_draw(this.get_child(), cr);
         }
     }
