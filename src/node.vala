@@ -201,7 +201,7 @@ namespace GtkFlow {
             Gdk.RGBA col = sc.get_color(Gtk.StateFlags.NORMAL);
             stdout.printf("%d %d %d\n", (int)col.red, (int)col.green, (int)col.blue);
             cr.set_source_rgba(col.red,col.green,col.blue,col.alpha);
-            cr.move_to(offset_x + width - this.get_min_width() - Dock.SPACING_X, offset_y);
+            cr.move_to(offset_x + width - this.get_min_width(), offset_y);
             Pango.cairo_show_layout(cr, this.layout);
             sc.restore();
         }
@@ -457,7 +457,9 @@ namespace GtkFlow {
             sc.render_frame(cr, alloc.x, alloc.y, alloc.width, alloc.height);
             sc.restore();
 
-            this.propagate_draw(this.get_child(), cr);
+            Gtk.Widget child = this.get_child();
+            if (child != null)
+                this.propagate_draw((Gtk.Widget)this.get_child(), cr);
         }
     }
 
