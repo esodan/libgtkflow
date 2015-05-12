@@ -39,6 +39,10 @@ if (GEE10)
     vala_precompile(VALA_LIB_C
         "src/dummy.vala"
         "src/node.vala"
+        "src/nodeview.vala"
+        "src/dock.vala"
+        "src/source.vala"
+        "src/sink.vala"
     PACKAGES
         gtk+-3.0
         gee-1.0
@@ -53,6 +57,10 @@ else()
     vala_precompile(VALA_LIB_C
         "src/dummy.vala"
         "src/node.vala"
+        "src/nodeview.vala"
+        "src/dock.vala"
+        "src/source.vala"
+        "src/sink.vala"
     PACKAGES
         gtk+-3.0
         gee-1.0
