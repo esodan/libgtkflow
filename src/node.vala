@@ -440,6 +440,13 @@ namespace GtkFlow {
             Gtk.Allocation alloc;
             this.get_node_allocation(out alloc);
 
+            Gtk.StyleContext sc = this.get_style_context();
+            sc.save();
+            sc.add_class(Gtk.STYLE_CLASS_BUTTON);
+            sc.render_background(cr, alloc.x, alloc.y, alloc.width, alloc.height);
+            sc.render_frame(cr, alloc.x, alloc.y, alloc.width, alloc.height);
+            sc.restore();
+
             int y_offset = 0;
             foreach (Sink s in this.sinks) {
                 s.draw_sink(cr, alloc.x, alloc.y+y_offset);
@@ -450,12 +457,6 @@ namespace GtkFlow {
                 y_offset += s.get_min_height();
             }
 
-            Gtk.StyleContext sc = this.get_style_context();
-            sc.save();
-            sc.render_background(cr, alloc.x, alloc.y, alloc.width, alloc.height);
-            sc.add_class(Gtk.STYLE_CLASS_FRAME);
-            sc.render_frame(cr, alloc.x, alloc.y, alloc.width, alloc.height);
-            sc.restore();
 
             Gtk.Widget child = this.get_child();
             if (child != null)
