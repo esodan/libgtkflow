@@ -17,6 +17,7 @@ class AddNode(GtkFlow.Node):
         self.add_sink(self.summand_b)    
     
         self.result = GtkFlow.Source.new(0)
+        self.result.set_label("result")
         self.add_source(self.result)
 
         self.summand_a.connect("changed", self.do_calculations)
