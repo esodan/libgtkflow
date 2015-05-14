@@ -56,7 +56,7 @@ namespace GtkFlow {
 
         public void add_node(Node n) {
             if (!this.nodes.contains(n)) {
-                this.nodes.add(n);
+                this.nodes.insert(0,n);
                 n.set_node_view(this);
             }
             this.queue_draw();
@@ -281,7 +281,10 @@ namespace GtkFlow {
             Gtk.Allocation alloc;
             this.get_allocation(out alloc);
             // Draw nodes
+            Gee.ArrayList<Node> reversenodes = new Gee.ArrayList<Node>();
             foreach (Node n in this.nodes)
+                reversenodes.insert(0,n);
+            foreach (Node n in reversenodes)
                 n.draw_node(cr);
             // Draw connectors
             foreach (Node n in this.nodes) {
