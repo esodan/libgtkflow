@@ -59,6 +59,7 @@ namespace GtkFlow {
                 this.nodes.add(n);
                 n.set_node_view(this);
             }
+            this.queue_draw();
         }
 
         public void remove_node(Node n) {
@@ -66,6 +67,7 @@ namespace GtkFlow {
                 this.nodes.remove(n);
                 n.set_node_view(null);
             }
+            this.queue_draw();
         }
 
         private Node? get_node_on_position(double x,double y) {
