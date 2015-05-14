@@ -94,6 +94,20 @@ namespace GtkFlow {
         public abstract bool is_connected();
 
         /**
+         * Set the reference to a node on this dock
+         */
+        public void set_node(Node? n) {
+            this.node = n;
+        }
+
+        /**
+         * Get the node that this dock resides in
+         */
+        public unowned Node? get_node() {
+            return this.node;
+        }
+
+        /**
          * Get the minimum width for this dock
          */
         public virtual int get_min_height() {
