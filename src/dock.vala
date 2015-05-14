@@ -27,7 +27,7 @@ namespace GtkFlow {
      * data with the same VariantType can be interconnected.
      */
     public abstract class Dock : Gtk.Widget {
-        public const int HEIGHT = 15;
+        public const int HEIGHT = 16;
         public const int SPACING_X = 5;
         public const int SPACING_Y = 3;
 
