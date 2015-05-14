@@ -75,6 +75,8 @@ namespace GtkFlow {
         private Gee.ArrayList<Source> sources = new Gee.ArrayList<Source>();
         private Gee.ArrayList<Sink> sinks = new Gee.ArrayList<Sink>();
 
+        private NodeView? node_view = null;
+
         private Gtk.Allocation node_allocation;
 
         public Node () {
@@ -133,8 +135,21 @@ namespace GtkFlow {
             s.size_changed.disconnect(this.recalculate_size);
         }
 
+        /**
+         * Returns the sources of this node
+         */
         public unowned Gee.ArrayList<Source> get_sources() {
             return this.sources;
+        }
+
+        public new void set_border_width(uint border_width) {
+            base.set_border_width(border_width);
+            this.recalculate_size();
+            this.node_view.queue_draw();
+        }
+
+        public void set_node_view(NodeView? n) {
+            this.node_view = n;
         }
 
         /**
@@ -290,11 +305,13 @@ namespace GtkFlow {
 
             int y_offset = 0;
             foreach (Sink s in this.sinks) {
-                s.draw_sink(cr, alloc.x, alloc.y+y_offset);
+                s.draw_sink(cr, alloc.x + (int)this.border_width,
+                                alloc.y+y_offset + (int) this.border_width);
                 y_offset += s.get_min_height();
             }
             foreach (Source s in this.sources) {
-                s.draw_source(cr, alloc.x, alloc.y+y_offset, alloc.width);
+                s.draw_source(cr, alloc.x-(int)this.border_width,
+                                  alloc.y+y_offset + (int) this.border_width, alloc.width);
                 y_offset += s.get_min_height();
             }
 

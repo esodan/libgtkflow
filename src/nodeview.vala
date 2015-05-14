@@ -53,13 +53,17 @@ namespace GtkFlow {
         }
 
         public void add_node(Node n) {
-            if (!this.nodes.contains(n))
+            if (!this.nodes.contains(n)) {
                 this.nodes.add(n);
+                n.set_node_view(this);
+            }
         }
 
         public void remove_node(Node n) {
-            if (this.nodes.contains(n))
+            if (this.nodes.contains(n)) {
                 this.nodes.remove(n);
+                n.set_node_view(null);
+            }
         }
 
         private Node? get_node_on_position(double x,double y) {
