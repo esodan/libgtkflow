@@ -43,7 +43,26 @@ namespace GtkFlow {
          * Throw then the user tries to get a value from a sink that
          * is currently not connected to any source
          */
-        NO_SOURCE
+        NO_SOURCE,
+        /**
+         * Throw when there is no Dock available on this position
+         */
+        NO_DOCK_ON_POSITION,
+        /**
+         * Throw when the user tries to add a dock to a node
+         * That already contains a dock
+         */
+        ALREADY_HAS_DOCK,
+        /**
+         * Throw when the dock that the user tries to add already
+         * belongs to another node
+         */
+        DOCK_ALREADY_BOUND_TO_NODE,
+        /**
+         * Throw when the user tries to remove a dock from a node
+         * that hasn't yet been added to the node
+         */
+        NO_SUCH_DOCK
     }
 
 
@@ -74,36 +93,79 @@ namespace GtkFlow {
             alloc.height = this.node_allocation.height;
         }
 
-        public void add_source(Source s) {
-            if (!this.sources.contains(s)) {
-                sources.add(s);
-                this.recalculate_size();
-                s.size_changed.connect(this.recalculate_size);
-            }
+        public void add_source(Source s) throws NodeError {
+            if (s.get_node() != null)
+                throw new NodeError.DOCK_ALREADY_BOUND_TO_NODE("This Source is already bound");
+            if (this.sources.contains(s))
+                throw new NodeError.ALREADY_HAS_DOCK("This node already has this source");
+            sources.add(s);
+            s.set_node(this);
+            this.recalculate_size();
+            s.size_changed.connect(this.recalculate_size);
         }
 
-        public void add_sink(Sink s) {
-            if (!this.sinks.contains(s)) {
-                sinks.add(s);
-                this.recalculate_size();
-                s.size_changed.connect(this.recalculate_size);
-            }
+        public void add_sink(Sink s) throws NodeError {
+            if (s.get_node() != null)
+                throw new NodeError.DOCK_ALREADY_BOUND_TO_NODE("This Sink is already bound" );
+            if (this.sinks.contains(s))
+                throw new NodeError.ALREADY_HAS_DOCK("This node already has this sink");
+            sinks.add(s);
+            s.set_node(this);
+            this.recalculate_size();
+            s.size_changed.connect(this.recalculate_size);
         }
 
-        public void remove_source(Source s) {
-            if (this.sources.contains(s)) {
-                sources.remove(s);
-                this.recalculate_size();
-                s.size_changed.disconnect(this.recalculate_size);
-            }
+        public void remove_source(Source s) throws NodeError {
+            if (!this.sources.contains(s))
+                throw new NodeError.NO_SUCH_DOCK("This node doesn't have this source");
+            sources.remove(s);
+            s.set_node(null);
+            this.recalculate_size();
+            s.size_changed.disconnect(this.recalculate_size);
         }
 
-        public void remove_sink(Sink s) {
-            if (this.sinks.contains(s)) {
-                sinks.remove(s);
-                this.recalculate_size();
-                s.size_changed.disconnect(this.recalculate_size);
+        public void remove_sink(Sink s) throws NodeError {
+            if (!this.sinks.contains(s))
+                throw new NodeError.NO_SUCH_DOCK("This node doesn't have this sink");
+            sinks.remove(s);
+            s.set_node(null);
+            this.recalculate_size();
+            s.size_changed.disconnect(this.recalculate_size);
+        }
+
+        public unowned Gee.ArrayList<Source> get_sources() {
+            return this.sources;
+        }
+
+        /**
+         * Returns the position of the given dock.
+         * This is obviously bullshit. Docks should be able to know
+         * their own position
+         * TODO: find better solution
+         */
+        public Gdk.Point get_dock_position(Dock d) throws NodeError {
+            int i = 0;
+            Gdk.Point p = {0,0};
+            foreach (Dock s in this.sinks) {
+                if (s == d) {
+                    p.x = (int)(this.node_allocation.x + this.border_width + Dock.HEIGHT/2);
+                    p.y = (int)(this.node_allocation.y + this.border_width
+                              + Dock.HEIGHT/2 + i * s.get_min_height());
+                    return p;
+                }
+                i++;
             }
+            foreach (Dock s in this.sources) {
+                if (s == d) {
+                    p.x = (int)(this.node_allocation.x - this.border_width
+                              + this.node_allocation.width - Dock.HEIGHT/2);
+                    p.y = (int)(this.node_allocation.y + this.border_width
+                              + Dock.HEIGHT/2 + i * s.get_min_height());
+                    return p;
+                }
+                i++;
+            }
+            throw new NodeError.NO_SUCH_DOCK("There is no such dock in this node");
         }
 
         /*public bool motion_notify_event(Gdk.EventMotion e) {
