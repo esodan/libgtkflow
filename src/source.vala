@@ -79,6 +79,8 @@ namespace GtkFlow {
             sc.save();
             if (this.is_connected())
                 sc.set_state(Gtk.StateFlags.CHECKED);
+            if (this.highlight)
+                sc.set_state(sc.get_state() | Gtk.StateFlags.PRELIGHT);
             sc.add_class(Gtk.STYLE_CLASS_RADIO);
             sc.render_option(cr, offset_x+width-Dock.HEIGHT,offset_y,Dock.HEIGHT,Dock.HEIGHT);
             sc.restore();

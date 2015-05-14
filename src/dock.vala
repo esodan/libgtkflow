@@ -40,6 +40,12 @@ namespace GtkFlow {
         protected string label = "";
 
         /**
+         * Determines whether this dock is going to be drawn
+         * with a mouse-over-halo
+         */
+        public bool highlight {get; set; default=false;}
+
+        /**
          * A reference to the node this Dock resides in
          */
         protected weak Node? node = null;

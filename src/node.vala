@@ -106,14 +106,14 @@ namespace GtkFlow {
             }
         }
 
-        public bool motion_notify_event(Gdk.EventMotion e) {
+        /*public bool motion_notify_event(Gdk.EventMotion e) {
             // Determine x/y coords relative to this node's zero coordinates
             Gtk.Allocation alloc;
             this.get_node_allocation(out alloc);
             int local_x = (int)e.x - alloc.x;
             int local_y = (int)e.y - alloc.y;
             return true;
-        }
+        }*/
 
         /**
          * Checks if the node needs to be resized in order to fill the minimum
@@ -182,9 +182,9 @@ namespace GtkFlow {
         /**
          * Determines whether the mousepointer is hovering over a dock on this node
          */
-        public Dock? get_dock_on_position(Gdk.EventMotion e) {
-            int x = (int)e.x;
-            int y = (int)e.y;
+        public Dock? get_dock_on_position(Gdk.Point p) {
+            int x = p.x;
+            int y = p.y;
 
             int i = 0;
 

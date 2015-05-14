@@ -39,6 +39,9 @@ namespace GtkFlow {
         private int drag_diff_x = 0;
         private int drag_diff_y = 0;
 
+        // Remember the last dock the mouse hovered over, so we can unhighlight it
+        private Dock? hovered_dock = null;
+
         public NodeView() {
             base();
             this.set_size_request(100,100);
@@ -105,8 +108,19 @@ namespace GtkFlow {
             // currently pointing on a dock. if this is true, we
             // Want to draw a new connector instead of dragging the node
             Node? n = this.get_node_on_position(e.x, e.y);
+            Dock? targeted_dock = null;
             if (n != null) {
-                n.motion_notify_event(e);
+                //n.motion_notify_event(e);
+                Gdk.Point pos = {(int)e.x, (int)e.y};
+                targeted_dock = n.get_dock_on_position(pos);
+                if (targeted_dock != this.hovered_dock) {
+                    if (this.hovered_dock != null)
+                        this.hovered_dock.highlight = false;
+                    this.hovered_dock = targeted_dock;
+                    if (this.hovered_dock != null)
+                        this.hovered_dock.highlight = true;
+                    this.queue_draw();
+                }
             }
 
             // Check if the cursor has been dragged a few pixels (defined by DRAG_THRESHOLD)
