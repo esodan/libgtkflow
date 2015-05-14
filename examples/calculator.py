@@ -45,12 +45,13 @@ class PrintNode(GtkFlow.Node):
     def __init__(self):
         GtkFlow.Node.__init__(self)
         self.number = GtkFlow.Sink.new(0)
-        self.number.set_label("input")
+        self.number.set_label("")
         self.number.connect("changed", self.do_printing)
         self.add_sink(self.number)
         self.set_border_width(10)
 
     def do_printing(self, dock, val):
+        self.number.set_label(str(self.number.val))
         print (self.number.val)
         
 class Calculator(object):
