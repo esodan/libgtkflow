@@ -121,6 +121,13 @@ namespace GtkFlow {
                         this.hovered_dock.highlight = true;
                     this.queue_draw();
                 }
+            } else {
+                // If we are leaving the node we will also have to
+                // un-highlight the last hovered dock
+                if (this.hovered_dock != null)
+                    this.hovered_dock.highlight = false;
+                this.hovered_dock = null;
+                this.queue_draw();
             }
 
             // Check if the cursor has been dragged a few pixels (defined by DRAG_THRESHOLD)
