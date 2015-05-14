@@ -180,6 +180,38 @@ namespace GtkFlow {
         }
 
         /**
+         * Determines whether the mousepointer is hovering over a dock on this node
+         */
+        public Dock? get_dock_on_position(Gdk.EventMotion e) {
+            int x = (int)e.x;
+            int y = (int)e.y;
+
+            int i = 0;
+
+            int dock_x, dock_y;
+            foreach (Dock s in this.sinks) {
+                dock_x = (int)(this.node_allocation.x + this.border_width);
+                dock_y = (int)(this.node_allocation.y + this.border_width 
+                         + i * s.get_min_height());
+                if (x > dock_x && x < dock_x + Dock.HEIGHT
+                        && y > dock_y && y < dock_y + Dock.HEIGHT )
+                    return s;
+                i++;
+            }
+            foreach (Dock s in this.sources) {
+                dock_x = (int)(this.node_allocation.x + this.node_allocation.width 
+                         - this.border_width - Dock.HEIGHT);
+                dock_y = (int)(this.node_allocation.y + this.border_width 
+                         + i * s.get_min_height());
+                if (x > dock_x && x < dock_x + Dock.HEIGHT
+                        && y > dock_y && y < dock_y + Dock.HEIGHT )
+                    return s;
+                i++;
+            }
+            return null;
+        }
+
+        /**
          * Draw this node on the given cairo context
          * TODO: implement
          */

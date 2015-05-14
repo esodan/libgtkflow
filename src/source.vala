@@ -19,7 +19,6 @@
 # If not, see http://www.gnu.org/licenses/.
 *********************************************************************/
 
-
 namespace GtkFlow {
     /**
      * The Source is a special Type of Dock that provides data.
