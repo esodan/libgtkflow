@@ -41,6 +41,7 @@ namespace GtkFlow {
         }
 
         public virtual void set_source(Source s) throws NodeError{
+            this.unset_source();
             if (this.val.type() != s.val.type()) {
                 throw new NodeError.INCOMPATIBLE_SOURCETYPE(
                     "Can't connect. Source has type %s while Sink has type %s".printf(
