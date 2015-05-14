@@ -122,7 +122,6 @@ namespace GtkFlow {
          * Get the minimum width for this dock
          */
         public virtual int get_min_height() {
-            stdout.printf(this.label+"\n");
             int width, height;
             this.layout.get_pixel_size(out width, out height);
             return (int)(Math.fmax(height, Dock.HEIGHT))+Dock.SPACING_Y;
@@ -132,7 +131,6 @@ namespace GtkFlow {
          * Get the minimum height for this dock
          */
         public virtual int get_min_width() {
-            stdout.printf(this.label+"\n");
             int width, height;
             this.layout.get_pixel_size(out width, out height);
             return (int)(width + Dock.HEIGHT + Dock.SPACING_X);

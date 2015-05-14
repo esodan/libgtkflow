@@ -105,7 +105,6 @@ namespace GtkFlow {
             sc.save();
             sc.add_class(Gtk.STYLE_CLASS_BUTTON);
             Gdk.RGBA col = sc.get_color(Gtk.StateFlags.NORMAL);
-            stdout.printf("%d %d %d\n", (int)col.red, (int)col.green, (int)col.blue);
             cr.set_source_rgba(col.red,col.green,col.blue,col.alpha);
             cr.move_to(offset_x + width - this.get_min_width(), offset_y);
             Pango.cairo_show_layout(cr, this.layout);

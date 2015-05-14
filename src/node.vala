@@ -240,7 +240,6 @@ namespace GtkFlow {
                 child.get_allocation(out alloc);
                 mw += alloc.height;
             }
-            stdout.printf("min_height: %u\n", mw);
             return mw;
         }
 
@@ -267,7 +266,6 @@ namespace GtkFlow {
                 if (alloc.width > mw)
                     mw = alloc.width;
             }
-            stdout.printf("min_width: %u\n", mw);
             return mw + this.border_width*2;
         }
 

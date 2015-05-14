@@ -74,7 +74,6 @@ namespace GtkFlow {
                 n.get_node_allocation(out alloc);
                 if ( x >= alloc.x && y >= alloc.y &&
                          x <= alloc.x + alloc.width && y <= alloc.y + alloc.height ) {
-                    stdout.printf("habemus node\n");
                     return n;
                 }
             }
@@ -82,7 +81,6 @@ namespace GtkFlow {
         }
 
         public override bool button_press_event(Gdk.EventButton e) {
-            stdout.printf("press %d %d\n",(int)e.x, (int)e.y);
             Node? n = this.get_node_on_position(e.x, e.y);
             Dock? targeted_dock = null;
             if (n != null) {
@@ -118,9 +116,7 @@ namespace GtkFlow {
 
         public override bool button_release_event(Gdk.EventButton e) {
             // Try to build a new connection
-            stdout.printf("release %d %d\n", (int)e.x, (int)e.y);
             if (this.drag_dock != null) {
-                stdout.printf("connection operation\n");
                 try {
                     if (this.drag_dock is Source && this.drop_dock is Sink) {
                         (this.drag_dock as Source).add_sink(this.drop_dock as Sink);
@@ -169,7 +165,6 @@ namespace GtkFlow {
         }
 
         public override bool motion_notify_event(Gdk.EventMotion e) {
-            stdout.printf("motion %d %d\n", (int)e.x, (int)e.y);
 
             // Check if we are on a node. If yes, check if we are
             // currently pointing on a dock. if this is true, we
@@ -283,7 +278,6 @@ namespace GtkFlow {
             cr.paint();
             Gtk.Allocation alloc;
             this.get_allocation(out alloc);
-            stdout.printf("%d %d\n", alloc.height, alloc.width);
             // Draw nodes
             foreach (Node n in this.nodes)
                 n.draw_node(cr);
