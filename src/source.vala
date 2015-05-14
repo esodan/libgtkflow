@@ -72,6 +72,13 @@ namespace GtkFlow {
         }
 
         /**
+         * Returns the sinks that this source is connected to
+         */
+        public unowned Gee.ArrayList<Sink> get_sinks() {
+            return this.sinks;
+        }
+
+        /**
          * Draw this source onto a cairo context
          */
         public void draw_source(Cairo.Context cr, int offset_x, int offset_y, int width) {

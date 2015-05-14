@@ -42,6 +42,11 @@ namespace GtkFlow {
         // Remember the last dock the mouse hovered over, so we can unhighlight it
         private Dock? hovered_dock = null;
 
+        // The dock that we are targeting for dragging a new connector
+        private Dock? drag_dock = null;
+        // The connector that is being used to draw a non-established connection
+        private Gtk.Allocation temp_connector;
+
         public NodeView() {
             base();
             this.set_size_request(100,100);
@@ -73,6 +78,15 @@ namespace GtkFlow {
         public override bool button_press_event(Gdk.EventButton e) {
             stdout.printf("press %d %d\n",(int)e.x, (int)e.y);
             Node? n = this.get_node_on_position(e.x, e.y);
+            Dock? targeted_dock = null;
+            if (n != null) {
+                Gdk.Point pos = {(int)e.x,(int)e.y};
+                targeted_dock = n.get_dock_on_position(pos);
+                if (targeted_dock != null) {
+                    this.drag_dock = targeted_dock;
+                    return true;
+                }
+            }
             // Set a new drag node.
             if (n != null && this.drag_node == null) {
                 this.drag_node = n;
@@ -98,6 +112,7 @@ namespace GtkFlow {
             this.drag_diff_x = 0;
             this.drag_diff_y = 0;
             this.drag_node = null;
+            this.drag_dock = null;
             this.drag_threshold_fulfilled = false;
         }
 
@@ -132,20 +147,26 @@ namespace GtkFlow {
 
             // Check if the cursor has been dragged a few pixels (defined by DRAG_THRESHOLD)
             // If yes, actually start dragging
-            if ( this.drag_node != null
+            if ( ( this.drag_node != null || this.drag_dock != null )
                     && (Math.fabs(drag_start_x - e.x) > NodeView.DRAG_THRESHOLD
                     ||  Math.fabs(drag_start_y - e.y) > NodeView.DRAG_THRESHOLD )) {
                 this.drag_threshold_fulfilled = true;
             }
 
-            // Actually move the node
-            if (this.drag_threshold_fulfilled && this.drag_node != null) {
-                Gtk.Allocation alloc;
-                this.drag_node.get_node_allocation(out alloc);
-                alloc.x = (int)e.x - this.drag_diff_x;
-                alloc.y = (int)e.y - this.drag_diff_y;
-                this.drag_node.set_node_allocation(alloc);
-                this.queue_draw();
+            // Actually something
+            if (this.drag_threshold_fulfilled ) {
+                if (this.drag_node != null) {
+                    // Actually move the node
+                    Gtk.Allocation alloc;
+                    this.drag_node.get_node_allocation(out alloc);
+                    alloc.x = (int)e.x - this.drag_diff_x;
+                    alloc.y = (int)e.y - this.drag_diff_y;
+                    this.drag_node.set_node_allocation(alloc);
+                    this.queue_draw();
+                }
+                if (this.drag_dock != null) {
+                    // Manipulate the temporary connector
+                }
             }
             return false;
         }
@@ -163,8 +184,36 @@ namespace GtkFlow {
             Gtk.Allocation alloc;
             this.get_allocation(out alloc);
             stdout.printf("%d %d\n", alloc.height, alloc.width);
+            // Draw nodes
             foreach (Node n in this.nodes)
                 n.draw_node(cr);
+            // Draw connectors
+            foreach (Node n in this.nodes) {
+                foreach(Source source in n.get_sources()) {
+                    Gdk.Point source_pos = {0,0};
+                    try {
+                        source_pos = n.get_dock_position(source);
+                    } catch (NodeError e) {
+                        warning("No dock on position. Ommiting connector");
+                        continue;
+                    }
+                    foreach(Sink sink in source.get_sinks()) {
+                        Node? sink_node = sink.get_node();
+                        Gdk.Point sink_pos = {0,0};
+                        try {
+                            sink_pos = sink_node.get_dock_position(sink);
+                        } catch (NodeError e) {
+                            warning("No dock on position. Ommiting connector");
+                            continue;
+                        }
+                        int w = sink_pos.x - source_pos.x;
+                        int h = sink_pos.y - source_pos.y;
+                        cr.move_to(source_pos.x, source_pos.y);
+                        cr.rel_curve_to(w,0,0,h,w,h);
+                        cr.stroke();
+                    }
+                }
+            }
             return true;
         }
 
