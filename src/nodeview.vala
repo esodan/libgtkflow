@@ -44,8 +44,10 @@ namespace GtkFlow {
 
         // The dock that we are targeting for dragging a new connector
         private Dock? drag_dock = null;
+        // The dock that we are targeting to drop a connector on
+        private Dock? drop_dock = null;
         // The connector that is being used to draw a non-established connection
-        private Gtk.Allocation temp_connector;
+        private Gtk.Allocation? temp_connector = null;
 
         public NodeView() {
             base();
@@ -88,6 +90,16 @@ namespace GtkFlow {
                 targeted_dock = n.get_dock_on_position(pos);
                 if (targeted_dock != null) {
                     this.drag_dock = targeted_dock;
+                    this.drag_dock.pressed = true;
+                    this.queue_draw();
+                    if (this.drag_dock is Sink && this.drag_dock.is_connected()){
+                        Source s = (this.drag_dock as Sink).source;
+                        Node srcnode = s.get_node();
+                        Gdk.Point srcpos = srcnode.get_dock_position(s);
+                        this.temp_connector = {srcpos.x, srcpos.y, (int)e.x, (int)e.y};
+                    }
+                    else
+                        this.temp_connector = {(int)e.x, (int)e.y, (int)e.x, (int)e.y};
                     return true;
                 }
             }
@@ -105,8 +117,36 @@ namespace GtkFlow {
         }
 
         public override bool button_release_event(Gdk.EventButton e) {
-            this.stop_dragging();
+            // Try to build a new connection
             stdout.printf("release %d %d\n", (int)e.x, (int)e.y);
+            if (this.drag_dock != null) {
+                stdout.printf("connection operation\n");
+                try {
+                    if (this.drag_dock is Source && this.drop_dock is Sink) {
+                        (this.drag_dock as Source).add_sink(this.drop_dock as Sink);
+                    }
+                    else if (this.drag_dock is Sink && this.drop_dock is Source) {
+                        (this.drop_dock as Source).add_sink(this.drag_dock as Sink);
+                    }
+                    else if (this.drag_dock is Sink && this.drop_dock is Sink) {
+                        Source? src = (this.drag_dock as Sink).source;
+                        if (src != null) {
+                            src.remove_sink(this.drag_dock as Sink);
+                            src.add_sink(this.drop_dock as Sink);
+                        }
+                    }
+                    else if (this.drag_dock is Sink && this.drop_dock == null) {
+                        Source? src = (this.drag_dock as Sink).source;
+                        if (src != null) {
+                            src.remove_sink(this.drag_dock as Sink);
+                        }
+                    }
+                } catch (NodeError e) {
+                    warning(e.message);
+                }
+            }
+            this.stop_dragging();
+            this.queue_draw();
             return false;
         }
 
@@ -116,7 +156,15 @@ namespace GtkFlow {
             this.drag_diff_x = 0;
             this.drag_diff_y = 0;
             this.drag_node = null;
+            if (this.drag_dock != null) {
+                this.drag_dock.pressed = false;
+            }
             this.drag_dock = null;
+            if (this.drop_dock != null) {
+                this.drop_dock.pressed = false;
+            }
+            this.drop_dock = null;
+            this.temp_connector = null;
             this.drag_threshold_fulfilled = false;
         }
 
@@ -133,12 +181,7 @@ namespace GtkFlow {
                 Gdk.Point pos = {(int)e.x, (int)e.y};
                 targeted_dock = n.get_dock_on_position(pos);
                 if (targeted_dock != this.hovered_dock) {
-                    if (this.hovered_dock != null)
-                        this.hovered_dock.highlight = false;
-                    this.hovered_dock = targeted_dock;
-                    if (this.hovered_dock != null)
-                        this.hovered_dock.highlight = true;
-                    this.queue_draw();
+                    this.set_hovered_dock(targeted_dock);
                 }
             } else {
                 // If we are leaving the node we will also have to
@@ -170,9 +213,62 @@ namespace GtkFlow {
                 }
                 if (this.drag_dock != null) {
                     // Manipulate the temporary connector
+                    this.temp_connector.width = (int)e.x-this.temp_connector.x;
+                    this.temp_connector.height = (int)e.y-this.temp_connector.y;
+                    if (targeted_dock == null) {
+                        this.set_drop_dock(null);
+                    }
+                    else if (this.is_suitable_target(this.drag_dock, targeted_dock))
+                        this.set_drop_dock(targeted_dock);
+
+                    this.queue_draw();
                 }
             }
             return false;
+        }
+
+        /**
+         * Determines wheter one dock can be dropped on another
+         */
+        private bool is_suitable_target (Dock from, Dock to) {
+            if (from is Sink
+                    && ((to is Sink
+                    && to != from)
+                    || (to is Source
+                    && !to.get_node().has_dock(from)))) {
+                return true;
+            }
+            else if (from is Source
+                    && to is Sink
+                    && !to.get_node().has_dock(from)) {
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * Sets the dock that is currently being hovered over to drop
+         * a connector on
+         */
+        private void set_drop_dock(Dock? d) {
+            if (this.drop_dock != null)
+                this.drop_dock.pressed = false;
+            this.drop_dock = d;
+            if (this.drop_dock != null)
+                this.drop_dock.pressed = true;
+            this.queue_draw();
+        }
+
+        /**
+         * Sets the dock that is currently being hovered over
+         */
+        private void set_hovered_dock(Dock? d) {
+            if (this.hovered_dock != null)
+                this.hovered_dock.highlight = false;
+            this.hovered_dock = d;
+            if (this.hovered_dock != null)
+                this.hovered_dock.highlight = true;
+            this.queue_draw();
         }
 
         public override bool leave_notify_event(Gdk.EventCrossing e) {
@@ -202,6 +298,9 @@ namespace GtkFlow {
                         continue;
                     }
                     foreach(Sink sink in source.get_sinks()) {
+                        // Don't draw the connection to a sink if we are dragging it
+                        if (sink == this.drag_dock)
+                            continue;
                         Node? sink_node = sink.get_node();
                         Gdk.Point sink_pos = {0,0};
                         try {
@@ -217,6 +316,14 @@ namespace GtkFlow {
                         cr.stroke();
                     }
                 }
+            }
+            // Draw temporary connector if any
+            if (this.temp_connector != null) {
+                int w = this.temp_connector.width;
+                int h = this.temp_connector.height;
+                cr.move_to(this.temp_connector.x, this.temp_connector.y);
+                cr.rel_curve_to(this.temp_connector.width,0,0,h,w,h);
+                cr.stroke();
             }
             return true;
         }

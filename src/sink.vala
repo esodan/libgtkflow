@@ -54,6 +54,14 @@ namespace GtkFlow {
             this.connected(s);
         }
 
+        public virtual void unset_source() {
+            if (this._source.connected_to(this))
+                this._source.remove_sink(this);
+            Source s = this._source;
+            this._source = null;
+            this.disconnected(s);
+        }
+
         /**
          * Checks if there is a source that supplies this sink with a value.
          * If yes, it returns that value. If not, returns the default value of
@@ -97,6 +105,8 @@ namespace GtkFlow {
                 sc.set_state(Gtk.StateFlags.CHECKED);
             if (this.highlight)
                 sc.set_state(sc.get_state() | Gtk.StateFlags.PRELIGHT);
+            if (this.pressed)
+                sc.set_state(sc.get_state() | Gtk.StateFlags.ACTIVE);
             sc.add_class(Gtk.STYLE_CLASS_RADIO);
             sc.render_option(cr, offset_x,offset_y,Dock.HEIGHT,Dock.HEIGHT);
             sc.restore();

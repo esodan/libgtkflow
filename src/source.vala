@@ -57,6 +57,15 @@ namespace GtkFlow {
             s.change_value(this.val);
         }
 
+        public virtual void remove_sink(Sink s){
+            if (this.sinks.contains(s))
+                this.sinks.remove(s);
+            if (s.connected_to(this))
+                s.unset_source();
+            s.change_value(0);
+            this.disconnected(s);
+        }
+
         /**
          * Returns true if this Source is connected to the given Sink
          */
@@ -88,6 +97,8 @@ namespace GtkFlow {
                 sc.set_state(Gtk.StateFlags.CHECKED);
             if (this.highlight)
                 sc.set_state(sc.get_state() | Gtk.StateFlags.PRELIGHT);
+            if (this.pressed)
+                sc.set_state(sc.get_state() | Gtk.StateFlags.ACTIVE);
             sc.add_class(Gtk.STYLE_CLASS_RADIO);
             sc.render_option(cr, offset_x+width-Dock.HEIGHT,offset_y,Dock.HEIGHT,Dock.HEIGHT);
             sc.restore();

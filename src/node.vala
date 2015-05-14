@@ -135,6 +135,21 @@ namespace GtkFlow {
             s.size_changed.disconnect(this.recalculate_size);
         }
 
+        public bool has_sink(Sink s) {
+            return this.sinks.contains(s);
+        }
+
+        public bool has_source(Source s) {
+            return this.sources.contains(s);
+        }
+
+        public bool has_dock(Dock d) {
+            if (d is Source)
+                return this.has_source(d as Source);
+            else
+                return this.has_sink(d as Sink);
+        }
+
         /**
          * Returns the sources of this node
          */

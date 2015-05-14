@@ -46,6 +46,11 @@ namespace GtkFlow {
         public bool highlight {get; set; default=false;}
 
         /**
+         * Determines whether this dock is going to be drawn as pressed
+         */
+        public bool pressed {get; set; default=false;}
+
+        /**
          * A reference to the node this Dock resides in
          */
         protected weak Node? node = null;
@@ -85,6 +90,12 @@ namespace GtkFlow {
          * from or to this Dock.
          */
         public signal void connected(Dock d);
+
+        /**
+         * This signal is being triggered, when there is a connection being established
+         * from or to this Dock.
+         */
+        public signal void disconnected(Dock d);
 
         /**
          * Triggers when something leads to this dock chaging in size
