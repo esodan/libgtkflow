@@ -77,7 +77,7 @@ if (GEE10)
     add_custom_target(docs
         COMMAND
             ${VALADOC_EXEC} -o doc --package-name=gtkflow --pkg gtk+-3.0 --pkg gee-1.0
-                src/node.vala
+                src/*.vala
         COMMENT
             "Generating documentation"
     )
