@@ -91,16 +91,18 @@ namespace GtkFlow {
                 if (targeted_dock != null) {
                     this.drag_dock = targeted_dock;
                     this.drag_dock.pressed = true;
-                    this.queue_draw();
                     Gdk.Point startpos;
                     if (this.drag_dock is Sink && this.drag_dock.is_connected()){
                         Source s = (this.drag_dock as Sink).source;
                         Node srcnode = s.get_node();
                         startpos = srcnode.get_dock_position(s);
+                        this.temp_connector = {startpos.x, startpos.y,
+                                               (int)e.x-startpos.x, (int)e.y-startpos.y};
                     } else {
                         startpos = n.get_dock_position(this.drag_dock);
+                        this.temp_connector = {startpos.x, startpos.y, 0, 0};
                     }
-                    this.temp_connector = {startpos.x, startpos.y, (int)e.x, (int)e.y};
+                    this.queue_draw();
                     return true;
                 }
             }
