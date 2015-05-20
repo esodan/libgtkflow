@@ -95,6 +95,16 @@ namespace GtkFlow {
             alloc.height = this.node_allocation.height;
         }
 
+        public override void add(Gtk.Widget w) {
+            w.set_parent(this);
+            base.add(w);
+        }
+
+        public override void remove(Gtk.Widget w) {
+            w.unparent();
+            base.remove(w);
+        }
+
         public void add_source(Source s) throws NodeError {
             if (s.get_node() != null)
                 throw new NodeError.DOCK_ALREADY_BOUND_TO_NODE("This Source is already bound");
@@ -328,10 +338,18 @@ namespace GtkFlow {
                 y_offset += s.get_min_height();
             }
 
-
             Gtk.Widget child = this.get_child();
-            if (child != null)
-                this.propagate_draw((Gtk.Widget)this.get_child(), cr);
+            if (child != null) {
+                Gtk.Allocation child_alloc = {0,0,0,0};
+                child_alloc.x = alloc.x + (int)border_width;
+                child_alloc.y = alloc.y+y_offset;
+                child_alloc.width = alloc.width - 2 * (int)this.border_width;
+                child_alloc.height = 20;//alloc.height - 2 * (int)this.border_width - y_offset;
+                child.size_allocate(child_alloc);
+
+                child.get_allocation(out child_alloc);
+                this.propagate_draw(child, cr);
+            }
         }
     }
 }

@@ -85,12 +85,12 @@ class Calculator(object):
         Gtk.main()
 
     def do_create_addnode(self, widget=None, data=None):
-        self.nv.add_node(AddNode())
+        self.nv.add(AddNode())
     def do_create_numbernode(self, widget=None, data=None):
         num = self.spinbutton.get_value_as_int()
-        self.nv.add_node(NumberNode(num))
+        self.nv.add(NumberNode(num))
     def do_create_printnode(self, widget=None, data=None):
-        self.nv.add_node(PrintNode())
+        self.nv.add(PrintNode())
     def do_quit(self, widget=None, data=None):
         Gtk.main_quit()
         sys.exit(0)

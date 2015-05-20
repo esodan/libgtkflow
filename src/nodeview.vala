@@ -24,7 +24,7 @@ namespace GtkFlow {
      * A Gtk Widget that shows nodes and their connections to the user
      * It also lets the user edit said connections.
      */
-    public class NodeView : Gtk.Widget {
+    public class NodeView : Gtk.Container {
         private Gee.ArrayList<Node> nodes = new Gee.ArrayList<Node>();
    
         // The node that is currently being dragged around
@@ -50,22 +50,36 @@ namespace GtkFlow {
         private Gtk.Allocation? temp_connector = null;
 
         public NodeView() {
-            base();
+            Object();
             this.set_size_request(100,100);
         }
 
-        public void add_node(Node n) {
+        public override void add(Gtk.Widget w) {
+            assert(w is Node);
+            this.add_node(w as Node);
+            w.set_parent(this);
+        }
+
+        public override void remove(Gtk.Widget w) {
+            assert(w is Node);
+            this.remove_node(w as Node);
+            w.unparent();
+        }
+
+        private void add_node(Node n) {
             if (!this.nodes.contains(n)) {
                 this.nodes.insert(0,n);
                 n.set_node_view(this);
+                this.add(n);
             }
             this.queue_draw();
         }
 
-        public void remove_node(Node n) {
+        private void remove_node(Node n) {
             if (this.nodes.contains(n)) {
                 this.nodes.remove(n);
                 n.set_node_view(null);
+                this.remove(n);
             }
             this.queue_draw();
         }
