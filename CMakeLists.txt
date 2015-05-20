@@ -63,7 +63,7 @@ else()
         "src/sink.vala"
     PACKAGES
         gtk+-3.0
-        gee-1.0
+        gee-0.8
     OPTIONS
         --thread
         --target-glib 2.32
@@ -84,7 +84,7 @@ if (GEE10)
 else()
     add_custom_target(docs
         COMMAND
-            ${VALADOC_EXEC} -o doc --package-name=gtkflow --pkg gtk+-3.0 --pkg gee-1.0
+            ${VALADOC_EXEC} -o doc --package-name=gtkflow --pkg gtk+-3.0 --pkg gee-0.8
                 src/node.vala
         COMMENT
             "Generating documentation"
