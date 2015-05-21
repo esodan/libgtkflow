@@ -248,7 +248,6 @@ namespace GtkFlow {
             if (child != null) {
                 int child_height, _;
                 child.get_preferred_height(out child_height, out _);
-                stdout.printf("pref height: %d\n", child_height);
                 mw += child_height;
             }
             return mw;
@@ -274,7 +273,6 @@ namespace GtkFlow {
             if (child != null) {
                 int child_width, _;
                 child.get_preferred_width(out child_width, out _);
-                stdout.printf("pref width: %d\n", child_width);
                 if (child_width > mw)
                     mw = child_width;
             }
