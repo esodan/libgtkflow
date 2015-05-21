@@ -1,3 +1,20 @@
+commit 54a9bb2e357cd32ef5bbf2aac3097b7f9f7ce9a5
+Author: Daniel Espinosa <despinosa@macbookpro.net.pwmc.mx>
+Date:   Thu May 21 14:31:41 2015 -0500
+
+    Initial autotools setup done
+
+    * Still remains to add rules for Unit tests and examples
+
+ ChangeLog                   | 535
+ ++++++++++++++++++++++++++++++++++++++++++++
+ configure.ac                |   3 +
+ examples/Makefile.am        |   0
+ libgtkflow/Makefile.am      |   9 +-
+ libgtkflow/gtkflow-0.2.deps |   2 +
+ test/Makefile.am            |   0
+ 6 files changed, 544 insertions(+), 5 deletions(-)
+
 commit f33b5ccd78a8eaf21ca96f67b15f2002537f41b9
 Author: Daniel Espinosa <despinosa@macbookpro.net.pwmc.mx>
 Date:   Thu May 21 14:18:17 2015 -0500

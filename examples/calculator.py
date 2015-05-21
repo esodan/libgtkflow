@@ -79,12 +79,11 @@ class Calculator(object):
         vbox.pack_start(self.nv, True, True, 0)
  
         w.add(vbox)
-        w.add(self.nv)
-        w.show_all()       
+        w.show_all()
         w.connect("destroy", self.do_quit)
-        Gtk.main()
 
     def do_create_addnode(self, widget=None, data=None):
+        print ("Adding a new Add node")
         self.nv.add(AddNode())
     def do_create_numbernode(self, widget=None, data=None):
         num = self.spinbutton.get_value_as_int()
@@ -97,3 +96,5 @@ class Calculator(object):
 
 if __name__ == "__main__":
     Calculator()
+    print ("Running...")
+    Gtk.main()
