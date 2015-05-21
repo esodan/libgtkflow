@@ -55,7 +55,7 @@ AM_VALAFLAGS += \
 	--vapidir=. \
 	--pkg gee-0.8 \
 	--pkg glib-2.0 \
-	--pkg gtk-3.0 \
+	--pkg gtk+-3.0 \
 	--includedir libgtkflow \
 	--vapi gtkflow-0.2.vapi \
 	-H gtkflow.h \
@@ -76,9 +76,8 @@ $(sources:.vala=.c): $(sources)
 	$(VALAC) $(AM_VALAFLAGS) $^
 
 libgtkflow_0_2_la_SOURCES= \
-  $(sources:.vala=.c) \
-  xlibxml.c
-libgtkflow_0_2_la_DEPENDENCIES= libgtkflow-0.2.la
+  $(sources:.vala=.c)
+
 
 # .h header file
 gtkflow.h: libgtkflow-0.2.la
@@ -94,7 +93,7 @@ dist_vapi_DATA = \
 	$(NULL)
 
 # .pc pkg-config file
-pkgconfig_in = libgktflow-0.2.pc.in
+pkgconfig_in = gtkflow-0.2.pc.in
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(pkgconfig_in:.in=)
 

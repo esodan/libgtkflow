@@ -279,6 +279,9 @@ libgtkflow/Makefile
 libgtkflow/gtkflow-0.2.pc
 libgtkflow/namespace-info.vala
 docs/Makefile
+po/Makefile.in
+test/Makefile
+examples/Makefile
 ])
 AC_OUTPUT
 
