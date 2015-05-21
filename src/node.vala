@@ -246,9 +246,10 @@ namespace GtkFlow {
             }
             Gtk.Widget child = this.get_child();
             if (child != null) {
-                Gtk.Allocation alloc;
-                child.get_allocation(out alloc);
-                mw += alloc.height;
+                int child_height, _;
+                child.get_preferred_height(out child_height, out _);
+                stdout.printf("pref height: %d\n", child_height);
+                mw += child_height;
             }
             return mw;
         }
@@ -271,10 +272,11 @@ namespace GtkFlow {
             }
             Gtk.Widget child = this.get_child();
             if (child != null) {
-                Gtk.Allocation alloc;
-                child.get_allocation(out alloc);
-                if (alloc.width > mw)
-                    mw = alloc.width;
+                int child_width, _;
+                child.get_preferred_width(out child_width, out _);
+                stdout.printf("pref width: %d\n", child_width);
+                if (child_width > mw)
+                    mw = child_width;
             }
             return mw + this.border_width*2;
         }
@@ -342,9 +344,9 @@ namespace GtkFlow {
             if (child != null) {
                 Gtk.Allocation child_alloc = {0,0,0,0};
                 child_alloc.x = alloc.x + (int)border_width;
-                child_alloc.y = alloc.y+y_offset;
-                child_alloc.width = alloc.width - 2 * (int)this.border_width;
-                child_alloc.height = 20;//alloc.height - 2 * (int)this.border_width - y_offset;
+                child_alloc.y = alloc.y + (int)border_width + y_offset;
+                child_alloc.width = alloc.width - 2 * (int)border_width;
+                child_alloc.height = alloc.height - 2 * (int)border_width - y_offset;
                 child.size_allocate(child_alloc);
 
                 child.get_allocation(out child_alloc);
