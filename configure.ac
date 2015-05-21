@@ -119,7 +119,7 @@ VALA_REQUIRED=0.26.0
 LIBVALA_REQUIRED=0.26
 GEE_REQUIRED=0.10.5
 LIBXML_REQUIRED=2.7
-GTK_MODULES="gtk-3.0 >= 3.14.5"
+GTK_MODULES="gtk+-3.0 >= 3.14.5"
 VALADOC_REQUIRED=0.3.1
 
 # Check glib
@@ -275,6 +275,10 @@ AM_CONDITIONAL(PLATFORM_WIN32, [test x$platform_win32 = xyes])
 ### Autoconf generating Makefiles
 AC_CONFIG_FILES([
 Makefile
+libgtkflow/Makefile
+libgtkflow/gtkflow-0.2.pc
+libgtkflow/namespace-info.vala
+docs/Makefile
 ])
 AC_OUTPUT
 
