@@ -286,7 +286,8 @@ namespace GtkFlow {
         }
 
         public override bool leave_notify_event(Gdk.EventCrossing e) {
-            this.stop_dragging();
+            if (e.detail != Gdk.NotifyType.INFERIOR)
+                this.stop_dragging();
             return false;
         }
 
