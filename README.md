@@ -67,7 +67,7 @@ I compiled some examples on how to program against the library in Python in the 
 
 Feel free to add examples for your favorite language.
 
-Note: If you installed the library in /usr/local, you have to do export the following
+Note: If you installed the library in /usr/local, you have to export the following
 environment variables for the examples to work:
 
 ```
