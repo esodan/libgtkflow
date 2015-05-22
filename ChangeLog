@@ -1,3 +1,31 @@
+commit a3ff1ef8400be150dad6d7c9ff11a4dcfe9c24fe
+Merge: 14147fb 02e0c83
+Author: grindhold <grindhold@users.noreply.github.com>
+Date:   Fri May 22 09:06:37 2015 +0200
+
+    Merge pull request #9 from esodan/master
+
+    Convert to Autotools
+
+commit 02e0c83023b7b8c921d986d611f746663c4a5518
+Author: Daniel Espinosa <despinosa@macbookpro.net.pwmc.mx>
+Date:   Thu May 21 18:10:44 2015 -0500
+
+    Added missing file docs/Makefile.am
+
+ docs/Makefile.am | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+commit f9ee4574296f7adc04d70d50d442ce88d7d5e5d4
+Author: Daniel Espinosa <despinosa@macbookpro.net.pwmc.mx>
+Date:   Thu May 21 15:30:31 2015 -0500
+
+    Fixed Python script example
+
+ ChangeLog              | 17 +++++++++++++++++
+ examples/calculator.py |  7 ++++---
+ 2 files changed, 21 insertions(+), 3 deletions(-)
+
 commit 54a9bb2e357cd32ef5bbf2aac3097b7f9f7ce9a5
 Author: Daniel Espinosa <despinosa@macbookpro.net.pwmc.mx>
 Date:   Thu May 21 14:31:41 2015 -0500
