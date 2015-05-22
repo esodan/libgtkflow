@@ -1,20 +1,21 @@
 GtkFlow
 =======
 
-Here you see libgtkflow, a universal library for drawing flowgraphs with
+Here you see libgtkflow, a universal library for drawing flow graphs with
 Gtk+ 3.
 
 ![GtkFlow](https://i.imgur.com/BWcXGkV.png)
+This here is the included advanced calculator demo application ↑
 
-Flowgraphs are a possibility to let your user model the flow of data through
-several stations.
+Flow graphs are a possibility to let your user model flows of data from, through
+and into several stations.
 
 Motivation
 ----------
 
 I love Flowgraphs in other programs and i want to have them in my favourite
-UI-toolkit Gtk. I saw some programs that implemented similar functionality
-but they all don't look and feel very Gtk-esque/GNOMEy.
+UI-toolkit Gtk. I ran into some programs which implemented similar functionality
+but they all didn't feel or even lokk very Gtk-like/GNOMEy.
 
 Possible Usages
 ---------------
@@ -31,12 +32,12 @@ Unspecific:
   * Video Compositing (maybe [PiTiVi](http://www.pitivi.org))
   * Visualizing dependencies of objects (e.g. debian packages in apt)
 
-  * And whatever you can think up.
+  * … and whatever you can think up.
 
 Stability
 -------------
 
-Consider the API unstable by now.
+Consider the API unstable for now.
 You will encounter bugs.
 
 Building
@@ -60,14 +61,14 @@ $ sudo make install
 Examples
 --------
 
-libgtkflow supports GObject-Introspection so you can program against it in various
+libgtkflow supports GObject-Introspection which means you can consume it in various
 popular languages including but not limited to: Python, Perl, Lua, JS, PHP.
 I compiled some examples on how to program against the library in Python in the examples-folder.
 
-Feel free to add examples for your favourite language.
+Feel free to add examples for your favorite language.
 
 Note: If you installed the library in /usr/local, you have to do export the following
-environment variables in order for the examples to work:
+environment variables for the examples to work:
 
 ```
 $ export LD_LIBRARY_PATH=/usr/local/lib 
