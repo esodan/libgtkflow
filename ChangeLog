@@ -1,3 +1,43 @@
+commit 3455f7f6b98c200311d1ca93b73fc598b960f131
+Author: grindhold <grindhold@gmx.net>
+Date:   Fri May 22 11:43:09 2015 +0200
+
+    one more grammar error
+
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit e9feb4dd6b6675d61e1c723b6fcf9b92fb1ca4a6
+Author: grindhold <grindhold@gmx.net>
+Date:   Fri May 22 11:25:50 2015 +0200
+
+    grammar improvement
+
+    improved readme-file. thanks to @sinni800 for proofreading
+
+ README.md | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
+
+commit ef6c45c556ad251360b83a05ef457255db00df45
+Author: grindhold <grindhold@gmx.net>
+Date:   Fri May 22 11:23:18 2015 +0200
+
+    added some usage ideas from the mailinglists
+
+ README.md | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit 476424c7d71c62280e3c6b544261010ddcb5ca63
+Author: grindhold <grindhold@gmx.net>
+Date:   Fri May 22 11:06:11 2015 +0200
+
+    updated gitignore to ignore autotools-byproducts
+
+ .gitignore | 63
+ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ ChangeLog  | 28 ++++++++++++++++++++++++++++
+ 2 files changed, 91 insertions(+)
+
 commit a3ff1ef8400be150dad6d7c9ff11a4dcfe9c24fe
 Merge: 14147fb 02e0c83
 Author: grindhold <grindhold@users.noreply.github.com>

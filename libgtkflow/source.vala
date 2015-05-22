@@ -25,7 +25,7 @@ namespace GtkFlow {
      * A Source can provide a multitude of Sinks with data.
      */
     public class Source : Dock {
-        private Gee.ArrayList<Sink> sinks = new Gee.ArrayList<Sink>();
+        private List<Sink> sinks = new List<Sink>();
 
         public Source(GLib.Value initial) {
             base(initial);
@@ -50,15 +50,15 @@ namespace GtkFlow {
                     )
                 );
             }
-            if (!this.sinks.contains(s))
-                this.sinks.add(s);
+            if (this.sinks.index(s) == -1)
+                this.sinks.append(s);
             if (!s.connected_to(this))
                 s.set_source(this);
             s.change_value(this.val);
         }
 
         public virtual void remove_sink(Sink s){
-            if (this.sinks.contains(s))
+            if (this.sinks.index(s) != 1)
                 this.sinks.remove(s);
             if (s.connected_to(this))
                 s.unset_source();
@@ -70,20 +70,20 @@ namespace GtkFlow {
          * Returns true if this Source is connected to the given Sink
          */
         public bool connected_to(Sink s) {
-            return this.sinks.contains(s);
+            return this.sinks.index(s) != -1;
         }
 
         /**
          * Returns true if this Source is connected to one or more Sinks
          */
         public override bool is_connected() {
-            return this.sinks.size > 0;
+            return this.sinks.length() > 0;
         }
 
         /**
          * Returns the sinks that this source is connected to
          */
-        public unowned Gee.ArrayList<Sink> get_sinks() {
+        public unowned List<Sink> get_sinks() {
             return this.sinks;
         }
 

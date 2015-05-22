@@ -45,7 +45,6 @@ Building
 
 Make sure you get the following Dependencies:
 
-  * libgee-0.8-dev
   * libgtk-3-dev
   * gobject-introspection
   * cmake

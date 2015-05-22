@@ -25,7 +25,7 @@ namespace GtkFlow {
      * It also lets the user edit said connections.
      */
     public class NodeView : Gtk.Container {
-        private Gee.ArrayList<Node> nodes = new Gee.ArrayList<Node>();
+        private List<Node> nodes = new List<Node>();
    
         // The node that is currently being dragged around
         private const int DRAG_THRESHOLD = 3;
@@ -67,8 +67,8 @@ namespace GtkFlow {
         }
 
         private void add_node(Node n) {
-            if (!this.nodes.contains(n)) {
-                this.nodes.insert(0,n);
+            if (this.nodes.index(n) == -1) {
+                this.nodes.insert(n,0);
                 n.set_node_view(this);
                 this.add(n);
             }
@@ -76,7 +76,7 @@ namespace GtkFlow {
         }
 
         private void remove_node(Node n) {
-            if (this.nodes.contains(n)) {
+            if (this.nodes.index(n) != -1) {
                 this.nodes.remove(n);
                 n.set_node_view(null);
                 this.remove(n);
@@ -299,11 +299,10 @@ namespace GtkFlow {
             Gtk.Allocation alloc;
             this.get_allocation(out alloc);
             // Draw nodes
-            Gee.ArrayList<Node> reversenodes = new Gee.ArrayList<Node>();
+            this.nodes.reverse();
             foreach (Node n in this.nodes)
-                reversenodes.insert(0,n);
-            foreach (Node n in reversenodes)
                 n.draw_node(cr);
+            this.nodes.reverse();
             // Draw connectors
             foreach (Node n in this.nodes) {
                 foreach(Source source in n.get_sources()) {

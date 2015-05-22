@@ -5,6 +5,6 @@ includedir=${prefix}/include
 Name: gtkflow 
 Description: library to create flowgraphs in Gtk. 
 URL: https://github.com/grindhold/libgtkflow/
-Requires: gtk+-3.0 gee-1.0
+Requires: gtk+-3.0
 Version: 0.1
 Libs: -lgtkflow

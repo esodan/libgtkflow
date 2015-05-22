@@ -33,7 +33,6 @@ AM_CPPFLAGS = \
 AM_CFLAGS = \
 	-g \
 	$(GLIB_CFLAGS) \
-	$(GEE_CFLAGS) \
 	$(VALA_CFLAGS) \
 	$(GTK_CFLAGS) \
 	$(NULL)
@@ -53,7 +52,6 @@ AM_VALAFLAGS += \
 	$(ERROR_VALAFLAGS) \
 	--library=gtkflow-0.2 \
 	--vapidir=. \
-	--pkg gee-0.8 \
 	--pkg glib-2.0 \
 	--pkg gtk+-3.0 \
 	--includedir libgtkflow \
@@ -63,7 +61,6 @@ AM_VALAFLAGS += \
 	$(NULL)
 
 libgtkflow_0_2_la_LIBADD = \
-	$(GEE_LIBS) \
 	$(GLIB_LIBS) \
 	$(VALA_LIBS) \
 	$(GTK_LIBS) \

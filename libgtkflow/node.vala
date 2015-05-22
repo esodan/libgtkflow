@@ -72,8 +72,8 @@ namespace GtkFlow {
      * The node can be represented towards the user as arbitrary Gtk widget.
      */
     public class Node : Gtk.Bin {
-        private Gee.ArrayList<Source> sources = new Gee.ArrayList<Source>();
-        private Gee.ArrayList<Sink> sinks = new Gee.ArrayList<Sink>();
+        private List<Source> sources = new List<Source>();
+        private List<Sink> sinks = new List<Sink>();
 
         private NodeView? node_view = null;
 
@@ -108,9 +108,9 @@ namespace GtkFlow {
         public void add_source(Source s) throws NodeError {
             if (s.get_node() != null)
                 throw new NodeError.DOCK_ALREADY_BOUND_TO_NODE("This Source is already bound");
-            if (this.sources.contains(s))
+            if (this.sources.index(s) != -1)
                 throw new NodeError.ALREADY_HAS_DOCK("This node already has this source");
-            sources.add(s);
+            sources.append(s);
             s.set_node(this);
             this.recalculate_size();
             s.size_changed.connect(this.recalculate_size);
@@ -119,16 +119,16 @@ namespace GtkFlow {
         public void add_sink(Sink s) throws NodeError {
             if (s.get_node() != null)
                 throw new NodeError.DOCK_ALREADY_BOUND_TO_NODE("This Sink is already bound" );
-            if (this.sinks.contains(s))
+            if (this.sinks.index(s) != -1)
                 throw new NodeError.ALREADY_HAS_DOCK("This node already has this sink");
-            sinks.add(s);
+            sinks.append(s);
             s.set_node(this);
             this.recalculate_size();
             s.size_changed.connect(this.recalculate_size);
         }
 
         public void remove_source(Source s) throws NodeError {
-            if (!this.sources.contains(s))
+            if (this.sources.index(s) == -1)
                 throw new NodeError.NO_SUCH_DOCK("This node doesn't have this source");
             sources.remove(s);
             s.set_node(null);
@@ -137,7 +137,7 @@ namespace GtkFlow {
         }
 
         public void remove_sink(Sink s) throws NodeError {
-            if (!this.sinks.contains(s))
+            if (this.sinks.index(s) == -1)
                 throw new NodeError.NO_SUCH_DOCK("This node doesn't have this sink");
             sinks.remove(s);
             s.set_node(null);
@@ -146,11 +146,11 @@ namespace GtkFlow {
         }
 
         public bool has_sink(Sink s) {
-            return this.sinks.contains(s);
+            return this.sinks.index(s) != -1;
         }
 
         public bool has_source(Source s) {
-            return this.sources.contains(s);
+            return this.sources.index(s) != -1;
         }
 
         public bool has_dock(Dock d) {
@@ -163,7 +163,7 @@ namespace GtkFlow {
         /**
          * Returns the sources of this node
          */
-        public unowned Gee.ArrayList<Source> get_sources() {
+        public unowned List<Source> get_sources() {
             return this.sources;
         }
 
