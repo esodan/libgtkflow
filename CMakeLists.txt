@@ -37,12 +37,12 @@ link_directories(${GEE_LIBRARY_DIRS})
 
 if (GEE10)
     vala_precompile(VALA_LIB_C
-        "src/dummy.vala"
-        "src/node.vala"
-        "src/nodeview.vala"
-        "src/dock.vala"
-        "src/source.vala"
-        "src/sink.vala"
+        "libgtkflow/dummy.vala"
+        "libgtkflow/node.vala"
+        "libgtkflow/nodeview.vala"
+        "libgtkflow/dock.vala"
+        "libgtkflow/source.vala"
+        "libgtkflow/sink.vala"
     PACKAGES
         gtk+-3.0
         gee-1.0
@@ -55,12 +55,12 @@ if (GEE10)
     )
 else()
     vala_precompile(VALA_LIB_C
-        "src/dummy.vala"
-        "src/node.vala"
-        "src/nodeview.vala"
-        "src/dock.vala"
-        "src/source.vala"
-        "src/sink.vala"
+        "libgtkflow/dummy.vala"
+        "libgtkflow/node.vala"
+        "libgtkflow/nodeview.vala"
+        "libgtkflow/dock.vala"
+        "libgtkflow/source.vala"
+        "libgtkflow/sink.vala"
     PACKAGES
         gtk+-3.0
         gee-0.8
@@ -77,7 +77,7 @@ if (GEE10)
     add_custom_target(docs
         COMMAND
             ${VALADOC_EXEC} -o doc --package-name=gtkflow --pkg gtk+-3.0 --pkg gee-1.0
-                src/*.vala
+                libgtkflow/*.vala
         COMMENT
             "Generating documentation"
     )
@@ -85,7 +85,7 @@ else()
     add_custom_target(docs
         COMMAND
             ${VALADOC_EXEC} -o doc --package-name=gtkflow --pkg gtk+-3.0 --pkg gee-0.8
-                src/node.vala
+                libgtkflow/node.vala
         COMMENT
             "Generating documentation"
     )
