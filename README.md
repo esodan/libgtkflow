@@ -24,10 +24,12 @@ Specific:
   * Writing a UI for [GStreamer](http://gstreamer.org)
   * Writing a UI for [Beehive](https://github.com/muesli/beehive)
   * Replacement for the UI in [Gnuradio](http://gnuradio.org)
+  * Matching monitors / inputs / outputs in [Pavucontrol](http://freedesktop.org/software/pulseaudio/pavucontrol/)
 
 Unspecific:
 
   * Video Compositing (maybe [PiTiVi](http://www.pitivi.org))
+  * Visualizing dependencies of objects (e.g. debian packages in apt)
 
   * And whatever you can think up.
 
