@@ -109,11 +109,21 @@ namespace GtkFlow {
                     if (this.drag_dock is Sink && this.drag_dock.is_connected()){
                         Source s = (this.drag_dock as Sink).source;
                         Node srcnode = s.get_node();
-                        startpos = srcnode.get_dock_position(s);
+                        try {
+                            startpos = srcnode.get_dock_position(s);
+                        } catch (NodeError e) {
+                            warning("No dock on position. Aborting drag");
+                            return false;
+                        }
                         this.temp_connector = {startpos.x, startpos.y,
                                                (int)e.x-startpos.x, (int)e.y-startpos.y};
                     } else {
-                        startpos = n.get_dock_position(this.drag_dock);
+                        try {
+                            startpos = n.get_dock_position(this.drag_dock);
+                        } catch (NodeError e) {
+                            warning("No dock on position. Aborting drag");
+                            return false;
+                        }
                         this.temp_connector = {startpos.x, startpos.y, 0, 0};
                     }
                     this.queue_draw();

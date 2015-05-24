@@ -62,7 +62,11 @@ namespace GtkFlow {
                 this.sinks.remove(s);
             if (s.connected_to(this))
                 s.unset_source();
-            s.change_value(0);
+            try {
+                s.change_value(0);
+            } catch {
+                warning("Could not reset the sink");
+            }
             this.disconnected(s);
         }
 

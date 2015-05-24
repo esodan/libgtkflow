@@ -89,6 +89,7 @@ namespace GtkFlow {
         }
 
         public void get_node_allocation(out Gtk.Allocation alloc) {
+            alloc = Gtk.Allocation();
             alloc.x = this.node_allocation.x;
             alloc.y = this.node_allocation.y;
             alloc.width = this.node_allocation.width;

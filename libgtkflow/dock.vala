@@ -31,9 +31,6 @@ namespace GtkFlow {
         public const int SPACING_X = 5;
         public const int SPACING_Y = 3;
 
-        private int x = 0;
-        private int y = 0;
-
         protected Gtk.StyleContext style_context;
         protected Pango.Layout layout;
 

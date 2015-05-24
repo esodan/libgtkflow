@@ -90,7 +90,7 @@ namespace GtkFlow {
             return this.source != null;
         }
 
-        public void change_value(GLib.Value v) {
+        public void change_value(GLib.Value v) throws NodeError {
             if (this.val.type() != v.type())
                 throw new NodeError.INCOMPATIBLE_VALUE(
                     "Cannot feed a %s value into this %s Sink".printf(
