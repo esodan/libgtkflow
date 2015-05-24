@@ -32,7 +32,7 @@ GtkFlow-*.gir
 
 libgtkflow/.libs/
 libgtkflow/gtkflow-0.2.vapi
-
+ChangeLog
 
 # Python cache folders
 
