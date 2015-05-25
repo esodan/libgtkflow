@@ -4,7 +4,12 @@ GtkFlow
 Here you see libgtkflow, a universal library for drawing flow graphs with
 Gtk+ 3.
 
+![GtkFlowEvopop](http://i.imgur.com/s7qbTPT.png)
+
+This is a screenshot of libgtkflow rendered with the evopop Gtk3 theme
+
 ![GtkFlow](https://i.imgur.com/BWcXGkV.png)
+
 This here is the included advanced calculator demo application ↑
 
 Flow graphs are a possibility to let your user model flows of data from, through
