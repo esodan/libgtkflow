@@ -72,6 +72,7 @@ namespace GtkFlow {
      * The node can be represented towards the user as arbitrary Gtk widget.
      */
     public class Node : Gtk.Bin {
+        private const int TITLE_SPACING = 15;
         private List<Source> sources = new List<Source>();
         private List<Sink> sinks = new List<Sink>();
 
@@ -79,9 +80,20 @@ namespace GtkFlow {
 
         private Gtk.Allocation node_allocation;
 
+        private string title = "";
+        private Pango.Layout layout;
+
         public Node () {
             this.node_allocation = {0,0,00,00};
             this.recalculate_size();
+        }
+
+        public void set_title(string title) {
+            this.title = title;
+            this.layout = this.create_pango_layout("");
+            this.layout.set_markup("<b>%s</b>".printf(this.title),-1);
+            this.recalculate_size();
+            this.node_view.queue_draw();
         }
 
         public void set_node_allocation(Gtk.Allocation alloc) {
@@ -187,10 +199,18 @@ namespace GtkFlow {
         public Gdk.Point get_dock_position(Dock d) throws NodeError {
             int i = 0;
             Gdk.Point p = {0,0};
+
+            int title_offset = 0;
+            if (this.title != "") {
+                int _, height;
+                this.layout.get_pixel_size(out _,out height);
+                title_offset = height + Node.TITLE_SPACING;
+            }
+
             foreach (Dock s in this.sinks) {
                 if (s == d) {
                     p.x = (int)(this.node_allocation.x + this.border_width + Dock.HEIGHT/2);
-                    p.y = (int)(this.node_allocation.y + this.border_width
+                    p.y = (int)(this.node_allocation.y + this.border_width + title_offset
                               + Dock.HEIGHT/2 + i * s.get_min_height());
                     return p;
                 }
@@ -200,7 +220,7 @@ namespace GtkFlow {
                 if (s == d) {
                     p.x = (int)(this.node_allocation.x - this.border_width
                               + this.node_allocation.width - Dock.HEIGHT/2);
-                    p.y = (int)(this.node_allocation.y + this.border_width
+                    p.y = (int)(this.node_allocation.y + this.border_width + title_offset
                               + Dock.HEIGHT/2 + i * s.get_min_height());
                     return p;
                 }
@@ -239,6 +259,11 @@ namespace GtkFlow {
          */
         public uint get_min_height() {
             uint mw = this.border_width*2;
+            if (this.title != "") {
+                int width, height;
+                this.layout.get_pixel_size(out width, out height);
+                mw += height + Node.TITLE_SPACING;
+            }
             foreach (Dock d in this.sinks) {
                 mw += d.get_min_height();
             }
@@ -260,6 +285,11 @@ namespace GtkFlow {
         public uint get_min_width() {
             uint mw = 0;
             int t = 0;
+            if (this.title != "") {
+                int width, height;
+                this.layout.get_pixel_size(out width, out height);
+                mw = width;
+            }
             foreach (Dock d in this.sinks) {
                 t = d.get_min_width();
                 if (t > mw)
@@ -289,10 +319,16 @@ namespace GtkFlow {
 
             int i = 0;
 
-            int dock_x, dock_y;
+            int dock_x, dock_y, title_offset;
+            title_offset = 0;
+            if (this.title != "") {
+                int _, height;
+                this.layout.get_pixel_size(out _,out height);
+                title_offset = height + Node.TITLE_SPACING;
+            }
             foreach (Dock s in this.sinks) {
                 dock_x = (int)(this.node_allocation.x + this.border_width);
-                dock_y = (int)(this.node_allocation.y + this.border_width 
+                dock_y = (int)(this.node_allocation.y + this.border_width + title_offset
                          + i * s.get_min_height());
                 if (x > dock_x && x < dock_x + Dock.HEIGHT
                         && y > dock_y && y < dock_y + Dock.HEIGHT )
@@ -302,7 +338,7 @@ namespace GtkFlow {
             foreach (Dock s in this.sources) {
                 dock_x = (int)(this.node_allocation.x + this.node_allocation.width 
                          - this.border_width - Dock.HEIGHT);
-                dock_y = (int)(this.node_allocation.y + this.border_width 
+                dock_y = (int)(this.node_allocation.y + this.border_width + title_offset
                          + i * s.get_min_height());
                 if (x > dock_x && x < dock_x + Dock.HEIGHT
                         && y > dock_y && y < dock_y + Dock.HEIGHT )
@@ -314,7 +350,6 @@ namespace GtkFlow {
 
         /**
          * Draw this node on the given cairo context
-         * TODO: implement
          */
         public void draw_node(Cairo.Context cr) {
             Gtk.Allocation alloc;
@@ -328,6 +363,19 @@ namespace GtkFlow {
             sc.restore();
 
             int y_offset = 0;
+            if (this.title != "") {
+                sc.save();
+                sc.add_class(Gtk.STYLE_CLASS_BUTTON);
+                Gdk.RGBA col = sc.get_color(Gtk.StateFlags.NORMAL);
+                cr.set_source_rgba(col.red,col.green,col.blue,col.alpha);
+                cr.move_to(alloc.x + this.border_width,
+                           alloc.y + (int) this.border_width + y_offset);
+                Pango.cairo_show_layout(cr, this.layout);
+                sc.restore();
+                int width, height;
+                this.layout.get_pixel_size(out width, out height);
+                y_offset += height + Node.TITLE_SPACING;
+            }
             foreach (Sink s in this.sinks) {
                 s.draw_sink(cr, alloc.x + (int)this.border_width,
                                 alloc.y+y_offset + (int) this.border_width);

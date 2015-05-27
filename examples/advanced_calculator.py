@@ -37,6 +37,8 @@ class OperationNode(GtkFlow.Node):
 
         self.summand_a.connect("changed", self.do_calculations)
         self.summand_b.connect("changed", self.do_calculations)
+
+        self.set_title("Operation")
     
         self.set_border_width(10)
 
@@ -70,6 +72,8 @@ class NumberNode(GtkFlow.Node):
         self.add(self.spinbutton)
         self.show_all()
 
+        self.set_title("NumberGenerator")
+
         self.set_border_width(10)
 
     def do_value_changed(self, widget=None, data=None):
@@ -86,6 +90,8 @@ class PrintNode(GtkFlow.Node):
         self.childlabel = Gtk.Label()
         self.add(self.childlabel)
         self.show_all()
+
+        self.set_title("Output")
 
         self.set_border_width(10)
 
