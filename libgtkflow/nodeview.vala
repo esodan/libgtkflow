@@ -255,6 +255,13 @@ namespace GtkFlow {
          * Determines wheter one dock can be dropped on another
          */
         private bool is_suitable_target (Dock from, Dock to) {
+            // Check whether the docks have the same type
+            if (!from.has_same_type(to))
+                return false;
+            // If the from from-target is a sink, check if the
+            // to target is either a source which does not belong to the own node
+            // or if the to target is another sink (this is valid as we can
+            // move a connection from one sink to another
             if (from is Sink
                     && ((to is Sink
                     && to != from)
@@ -262,6 +269,8 @@ namespace GtkFlow {
                     && !to.get_node().has_dock(from)))) {
                 return true;
             }
+            // Check if the from-target is a source. if yes, make sure the
+            // to-target is a sink and it does not belong to the own node
             else if (from is Source
                     && to is Sink
                     && !to.get_node().has_dock(from)) {

@@ -67,6 +67,14 @@ namespace GtkFlow {
         }
 
         /**
+         * Returs true if this and the supplied dock have
+         * same type
+         */
+        public bool has_same_type(Dock other) {
+            return this.val.type_name() == other.val.type_name();
+        }
+
+        /**
          * Returns the current labelstring
          */
         public virtual string get_label() {
