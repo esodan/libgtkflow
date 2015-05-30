@@ -204,7 +204,11 @@ namespace GtkFlow {
                 //n.motion_notify_event(e);
                 Gdk.Point pos = {(int)e.x, (int)e.y};
                 targeted_dock = n.get_dock_on_position(pos);
-                if (targeted_dock != this.hovered_dock) {
+                if (this.drag_dock == null && targeted_dock != this.hovered_dock) {
+                    this.set_hovered_dock(targeted_dock);
+                }
+                else if (this.drag_dock != null && targeted_dock != this.hovered_dock
+                      && this.is_suitable_target(this.drag_dock, targeted_dock)) {
                     this.set_hovered_dock(targeted_dock);
                 }
             } else {
