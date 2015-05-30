@@ -229,15 +229,6 @@ namespace GtkFlow {
             throw new NodeError.NO_SUCH_DOCK("There is no such dock in this node");
         }
 
-        /*public bool motion_notify_event(Gdk.EventMotion e) {
-            // Determine x/y coords relative to this node's zero coordinates
-            Gtk.Allocation alloc;
-            this.get_node_allocation(out alloc);
-            int local_x = (int)e.x - alloc.x;
-            int local_y = (int)e.y - alloc.y;
-            return true;
-        }*/
-
         /**
          * Checks if the node needs to be resized in order to fill the minimum
          * size requirements

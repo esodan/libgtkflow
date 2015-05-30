@@ -201,7 +201,6 @@ namespace GtkFlow {
             Node? n = this.get_node_on_position(e.x, e.y);
             Dock? targeted_dock = null;
             if (n != null) {
-                //n.motion_notify_event(e);
                 Gdk.Point pos = {(int)e.x, (int)e.y};
                 targeted_dock = n.get_dock_on_position(pos);
                 if (this.drag_dock == null && targeted_dock != this.hovered_dock) {
