@@ -216,6 +216,8 @@ namespace GtkFlow {
          * Returns the position of the given dock.
          * This is obviously bullshit. Docks should be able to know
          * their own position
+         */
+        /*
          * TODO: find better solution
          */
         public Gdk.Point get_dock_position(Dock d) throws NodeError {
