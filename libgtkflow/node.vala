@@ -84,7 +84,7 @@ namespace GtkFlow {
         private Pango.Layout layout;
 
         public Node () {
-            this.node_allocation = {0,0,00,00};
+            this.node_allocation = {0,0,0,0};
             this.recalculate_size();
         }
 
@@ -98,6 +98,12 @@ namespace GtkFlow {
 
         public void set_node_allocation(Gtk.Allocation alloc) {
             this.node_allocation = alloc;
+        }
+
+        public void set_position(int x, int y) {
+            this.node_allocation.x = x;
+            this.node_allocation.y = y;
+            this.node_view.queue_draw();
         }
 
         public void get_node_allocation(out Gtk.Allocation alloc) {
