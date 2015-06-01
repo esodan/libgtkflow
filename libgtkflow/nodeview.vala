@@ -39,6 +39,9 @@ namespace GtkFlow {
         private int drag_diff_x = 0;
         private int drag_diff_y = 0;
 
+        // Remember if a closebutton was pressed
+        private bool close_button_pressed = false;
+
         // Remember the last dock the mouse hovered over, so we can unhighlight it
         private Dock? hovered_dock = null;
 
@@ -110,6 +113,8 @@ namespace GtkFlow {
             Dock? targeted_dock = null;
             if (n != null) {
                 Gdk.Point pos = {(int)e.x,(int)e.y};
+                if (n.is_on_closebutton(pos))
+                    this.close_button_pressed = true;
                 targeted_dock = n.get_dock_on_position(pos);
                 if (targeted_dock != null) {
                     this.drag_dock = targeted_dock;
@@ -155,6 +160,20 @@ namespace GtkFlow {
         public override bool button_release_event(Gdk.EventButton e) {
             if (!this.editable)
                 return false;
+            // Determine if this was a closebutton press
+            if (this.close_button_pressed) {
+                Node? n = this.get_node_on_position(e.x, e.y);
+                if (n != null) {
+                    Gdk.Point pos = {(int)e.x,(int)e.y};
+                    if (n.is_on_closebutton(pos)) {
+                        n.disconnect_all();
+                        n.destroy();
+                        this.queue_draw();
+                        this.close_button_pressed = false;
+                        return true;
+                    }
+                }
+            }
             // Try to build a new connection
             if (this.drag_dock != null) {
                 try {
@@ -214,6 +233,8 @@ namespace GtkFlow {
             Dock? targeted_dock = null;
             if (n != null) {
                 Gdk.Point pos = {(int)e.x, (int)e.y};
+                if (!n.is_on_closebutton(pos))
+                    this.close_button_pressed = false;
                 targeted_dock = n.get_dock_on_position(pos);
                 if (this.drag_dock == null && targeted_dock != this.hovered_dock) {
                     this.set_hovered_dock(targeted_dock);

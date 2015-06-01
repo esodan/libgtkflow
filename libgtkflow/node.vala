@@ -369,6 +369,35 @@ namespace GtkFlow {
         }
 
         /**
+         * Returns true if the point is on the close-button of the node
+         */
+        public bool is_on_closebutton(Gdk.Point p) {
+            int x = p.x;
+            int y = p.y;
+
+            Gtk.Allocation alloc;
+            this.get_node_allocation(out alloc);
+            int x_left = alloc.x + alloc.width - DELETE_BTN_SIZE - (int)border_width;
+            int x_right = x_left + DELETE_BTN_SIZE;
+            int y_top = alloc.y + (int)border_width;
+            int y_bot = y_top + DELETE_BTN_SIZE;
+            return x > x_left && x < x_right && y > y_top && y < y_bot;
+        }
+
+        /**
+         * Disconnect all connections from and to this node
+         */
+        public void disconnect_all() {
+            foreach (Source s in this.sources) {
+                s.remove_sinks();
+            }
+            foreach (Sink s in this.sinks) {
+                s.unset_source();
+            }
+        }
+
+
+        /**
          * Draw this node on the given cairo context
          */
         public void draw_node(Cairo.Context cr) {

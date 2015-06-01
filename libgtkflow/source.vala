@@ -70,6 +70,11 @@ namespace GtkFlow {
             this.disconnected(s);
         }
 
+        public virtual void remove_sinks() {
+            foreach (Sink s in this.sinks)
+                this.remove_sink(s);
+        }
+
         /**
          * Returns true if this Source is connected to the given Sink
          */
