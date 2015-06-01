@@ -261,6 +261,10 @@ namespace GtkFlow {
             // Check whether the docks have the same type
             if (!from.has_same_type(to))
                 return false;
+            // Check if the target would lead to a recursion
+            if (   from.get_node().is_recursive(to.get_node())
+                || to.get_node().is_recursive(from.get_node()))
+                return false;
             // If the from from-target is a sink, check if the
             // to target is either a source which does not belong to the own node
             // or if the to target is another sink (this is valid as we can

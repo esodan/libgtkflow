@@ -191,6 +191,22 @@ namespace GtkFlow {
         }
 
         /**
+         * This method checks whether a connection from the given from-Node
+         * to this Node would lead to a recursion
+         */
+        public bool is_recursive(Node from, bool initial=true) {
+            if (!initial && this == from)
+                return true;
+            foreach (Source source in this.get_sources()) {
+                foreach (Sink sink in source.get_sinks()) {
+                    if (sink.get_node().is_recursive(from, false))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        /**
          * Returns the position of the given dock.
          * This is obviously bullshit. Docks should be able to know
          * their own position
