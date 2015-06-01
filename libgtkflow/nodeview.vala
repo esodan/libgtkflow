@@ -49,6 +49,13 @@ namespace GtkFlow {
         // The connector that is being used to draw a non-established connection
         private Gtk.Allocation? temp_connector = null;
 
+        /**
+         * Determines whether the displayed Nodes can be edited by the user
+         * e.g. alter their positions by dragging and dropping or drawing
+         * new collections or erasing old ones
+         */
+        public bool editable {get; set; default=true;}
+
         public NodeView() {
             Object();
             this.set_size_request(100,100);
@@ -97,6 +104,8 @@ namespace GtkFlow {
         }
 
         public override bool button_press_event(Gdk.EventButton e) {
+            if (!this.editable)
+                return false;
             Node? n = this.get_node_on_position(e.x, e.y);
             Dock? targeted_dock = null;
             if (n != null) {
@@ -144,6 +153,8 @@ namespace GtkFlow {
         }
 
         public override bool button_release_event(Gdk.EventButton e) {
+            if (!this.editable)
+                return false;
             // Try to build a new connection
             if (this.drag_dock != null) {
                 try {
@@ -194,7 +205,8 @@ namespace GtkFlow {
         }
 
         public override bool motion_notify_event(Gdk.EventMotion e) {
-
+            if (!this.editable)
+                return false;
             // Check if we are on a node. If yes, check if we are
             // currently pointing on a dock. if this is true, we
             // Want to draw a new connector instead of dragging the node
