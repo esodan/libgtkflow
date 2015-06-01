@@ -58,7 +58,7 @@ namespace GtkFlow {
         }
 
         public virtual void remove_sink(Sink s){
-            if (this.sinks.index(s) != 1)
+            if (this.sinks.index(s) != -1)
                 this.sinks.remove(s);
             if (s.connected_to(this))
                 s.unset_source();
