@@ -206,7 +206,8 @@ namespace GtkFlow {
                 if (this.drag_dock == null && targeted_dock != this.hovered_dock) {
                     this.set_hovered_dock(targeted_dock);
                 }
-                else if (this.drag_dock != null && targeted_dock != this.hovered_dock
+                else if (this.drag_dock != null && targeted_dock != null
+                      && targeted_dock != this.hovered_dock
                       && this.is_suitable_target(this.drag_dock, targeted_dock)) {
                     this.set_hovered_dock(targeted_dock);
                 }
