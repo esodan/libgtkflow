@@ -72,7 +72,10 @@ namespace GtkFlow {
      * The node can be represented towards the user as arbitrary Gtk widget.
      */
     public class Node : Gtk.Bin {
+        // Determines the space between the title and the first dock (y-axis)
+        // as well as the space between the title and the close-button if any (x-axis)
         private const int TITLE_SPACING = 15;
+        private const int DELETE_BTN_SIZE = 16;
         private List<Source> sources = new List<Source>();
         private List<Sink> sinks = new List<Sink>();
 
@@ -277,6 +280,8 @@ namespace GtkFlow {
             if (this.title != "") {
                 int width, height;
                 this.layout.get_pixel_size(out width, out height);
+                if (height < DELETE_BTN_SIZE)
+                    height = DELETE_BTN_SIZE;
                 mw += height + Node.TITLE_SPACING;
             }
             foreach (Dock d in this.sinks) {
@@ -303,7 +308,7 @@ namespace GtkFlow {
             if (this.title != "") {
                 int width, height;
                 this.layout.get_pixel_size(out width, out height);
-                mw = width;
+                mw = width + TITLE_SPACING + DELETE_BTN_SIZE;
             }
             foreach (Dock d in this.sinks) {
                 t = d.get_min_width();
@@ -378,6 +383,7 @@ namespace GtkFlow {
             sc.restore();
 
             int y_offset = 0;
+
             if (this.title != "") {
                 sc.save();
                 sc.add_class(Gtk.STYLE_CLASS_BUTTON);
@@ -387,10 +393,27 @@ namespace GtkFlow {
                            alloc.y + (int) this.border_width + y_offset);
                 Pango.cairo_show_layout(cr, this.layout);
                 sc.restore();
+            }
+            if (this.node_view != null && this.node_view.editable) {
+                Gtk.IconTheme it = Gtk.IconTheme.get_default();
+                try {
+                    Gdk.Pixbuf icon_pix = it.load_icon("edit-delete", DELETE_BTN_SIZE, 0);
+                    Gdk.cairo_set_source_pixbuf(
+                        cr, icon_pix,
+                        alloc.x+alloc.width-DELETE_BTN_SIZE-border_width,
+                        alloc.y+border_width
+                    );
+                    cr.paint();
+                } catch (GLib.Error e) {
+                    warning("Could not load close-node-icon 'edit-delete'");
+                }
+            }
+            if (this.title != "" || (this.node_view != null && this.node_view.editable)) {
                 int width, height;
                 this.layout.get_pixel_size(out width, out height);
                 y_offset += height + Node.TITLE_SPACING;
             }
+
             foreach (Sink s in this.sinks) {
                 s.draw_sink(cr, alloc.x + (int)this.border_width,
                                 alloc.y+y_offset + (int) this.border_width);
