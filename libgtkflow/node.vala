@@ -76,6 +76,7 @@ namespace GtkFlow {
         // as well as the space between the title and the close-button if any (x-axis)
         private const int TITLE_SPACING = 15;
         private const int DELETE_BTN_SIZE = 16;
+        private const int RESIZE_HANDLE_SIZE = 10;
         private List<Source> sources = new List<Source>();
         private List<Sink> sinks = new List<Sink>();
 
@@ -90,6 +91,7 @@ namespace GtkFlow {
 
         public Node () {
             this.node_allocation = {0,0,0,0};
+            this.set_border_width(RESIZE_HANDLE_SIZE);
             this.recalculate_size();
         }
 
@@ -194,6 +196,10 @@ namespace GtkFlow {
         }
 
         public new void set_border_width(uint border_width) {
+            if (border_width < RESIZE_HANDLE_SIZE) {
+                warning("Cannot set border width smaller than %d", RESIZE_HANDLE_SIZE);
+                return;
+            }
             base.set_border_width(border_width);
             this.recalculate_size();
             this.node_view.queue_draw();
@@ -389,6 +395,22 @@ namespace GtkFlow {
         }
 
         /**
+         * Returns true if the point is in the resize-drag area
+         */
+        public bool is_on_resize_handle(Gdk.Point p) {
+            int x = p.x;
+            int y = p.y;
+
+            Gtk.Allocation alloc;
+            this.get_node_allocation(out alloc);
+            int x_left = alloc.x + alloc.width - RESIZE_HANDLE_SIZE;
+            int x_right = alloc.x + alloc.width;
+            int y_top = alloc.y + alloc.height - RESIZE_HANDLE_SIZE;
+            int y_bot = alloc.y + alloc.height;
+            return x > x_left && x < x_right && y > y_top && y < y_bot;
+        }
+
+        /**
          * Disconnect all connections from and to this node
          */
         public void disconnect_all() {
@@ -419,17 +441,20 @@ namespace GtkFlow {
 
             if (this.title != "") {
                 sc.save();
+                cr.save();
                 sc.add_class(Gtk.STYLE_CLASS_BUTTON);
                 Gdk.RGBA col = sc.get_color(Gtk.StateFlags.NORMAL);
                 cr.set_source_rgba(col.red,col.green,col.blue,col.alpha);
                 cr.move_to(alloc.x + this.border_width,
                            alloc.y + (int) this.border_width + y_offset);
                 Pango.cairo_show_layout(cr, this.layout);
+                cr.restore();
                 sc.restore();
             }
             if (this.node_view != null && this.node_view.editable) {
                 Gtk.IconTheme it = Gtk.IconTheme.get_default();
                 try {
+                    cr.save();
                     Gdk.Pixbuf icon_pix = it.load_icon("edit-delete", DELETE_BTN_SIZE, 0);
                     Gdk.cairo_set_source_pixbuf(
                         cr, icon_pix,
@@ -439,6 +464,8 @@ namespace GtkFlow {
                     cr.paint();
                 } catch (GLib.Error e) {
                     warning("Could not load close-node-icon 'edit-delete'");
+                } finally {
+                    cr.restore();
                 }
             }
             if (this.title != "" || (this.node_view != null && this.node_view.editable)) {
@@ -470,6 +497,20 @@ namespace GtkFlow {
                 child.get_allocation(out child_alloc);
                 this.propagate_draw(child, cr);
             }
+            // Draw resize handle
+            sc.save();
+            cr.save();
+            cr.set_source_rgba(0.5,0.5,0.5,0.5);
+            cr.move_to(alloc.x + alloc.width,
+                       alloc.y + alloc.height);
+            cr.line_to(alloc.x + alloc.width - RESIZE_HANDLE_SIZE,
+                       alloc.y + alloc.height);
+            cr.line_to(alloc.x + alloc.width,
+                       alloc.y + alloc.height - RESIZE_HANDLE_SIZE);
+            cr.fill();
+            cr.stroke();
+            cr.restore();
+            sc.restore();
         }
     }
 }
