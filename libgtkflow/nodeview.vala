@@ -149,14 +149,13 @@ namespace GtkFlow {
                 }
             }
             // Set a new drag node.
-            stdout.printf("foo\n");
             if (n != null) {
-                stdout.printf("bar\n");
                 Gtk.Allocation alloc;
                 if (n.is_on_resize_handle(pos) && this.resize_node == null) {
-                    stdout.printf("baz\n");
                     this.resize_node = n;
                     this.resize_node.get_node_allocation(out alloc);
+                    this.resize_start_x = alloc.width;
+                    this.resize_start_y = alloc.height;
                 } else if (this.drag_node == null) {
                     this.drag_node = n;
                     this.drag_node.get_node_allocation(out alloc);
@@ -303,8 +302,8 @@ namespace GtkFlow {
                     // resize the node
                     Gtk.Allocation alloc;
                     this.resize_node.get_node_allocation(out alloc);
-                    alloc.width = resize_start_x + (int)e.x + this.drag_diff_x;
-                    alloc.height = resize_start_y + (int)e.y + this.drag_diff_y;
+                    alloc.width =  resize_start_x + (int)e.x - (int)this.drag_start_x;
+                    alloc.height = resize_start_y + (int)e.y - (int)this.drag_start_y;
                     this.resize_node.set_node_allocation(alloc);
                     this.queue_draw();
                 }
