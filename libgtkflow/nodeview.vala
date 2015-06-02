@@ -41,6 +41,10 @@ namespace GtkFlow {
 
         // Remember if a closebutton was pressed
         private bool close_button_pressed = false;
+        // Remember if we are resizing a node
+        private Node? resize_node = null;
+        private int resize_start_x = 0;
+        private int resize_start_y = 0;
 
         // Remember the last dock the mouse hovered over, so we can unhighlight it
         private Dock? hovered_dock = null;
@@ -111,8 +115,8 @@ namespace GtkFlow {
                 return false;
             Node? n = this.get_node_on_position(e.x, e.y);
             Dock? targeted_dock = null;
+            Gdk.Point pos = {(int)e.x,(int)e.y};
             if (n != null) {
-                Gdk.Point pos = {(int)e.x,(int)e.y};
                 if (n.is_on_closebutton(pos))
                     this.close_button_pressed = true;
                 targeted_dock = n.get_dock_on_position(pos);
@@ -145,10 +149,20 @@ namespace GtkFlow {
                 }
             }
             // Set a new drag node.
-            if (n != null && this.drag_node == null) {
-                this.drag_node = n;
+            stdout.printf("foo\n");
+            if (n != null) {
+                stdout.printf("bar\n");
                 Gtk.Allocation alloc;
-                this.drag_node.get_node_allocation(out alloc);
+                if (n.is_on_resize_handle(pos) && this.resize_node == null) {
+                    stdout.printf("baz\n");
+                    this.resize_node = n;
+                    this.resize_node.get_node_allocation(out alloc);
+                } else if (this.drag_node == null) {
+                    this.drag_node = n;
+                    this.drag_node.get_node_allocation(out alloc);
+                } else {
+                    return false;
+                }
                 this.drag_start_x = e.x;
                 this.drag_start_y = e.y;
                 this.drag_diff_x = (int)this.drag_start_x - alloc.x;
@@ -174,6 +188,7 @@ namespace GtkFlow {
                     }
                 }
             }
+            this.resize_node = null;
             // Try to build a new connection
             if (this.drag_dock != null) {
                 try {
@@ -255,7 +270,7 @@ namespace GtkFlow {
 
             // Check if the cursor has been dragged a few pixels (defined by DRAG_THRESHOLD)
             // If yes, actually start dragging
-            if ( ( this.drag_node != null || this.drag_dock != null )
+            if ( ( this.drag_node != null || this.drag_dock != null || this.resize_node != null)
                     && (Math.fabs(drag_start_x - e.x) > NodeView.DRAG_THRESHOLD
                     ||  Math.fabs(drag_start_y - e.y) > NodeView.DRAG_THRESHOLD )) {
                 this.drag_threshold_fulfilled = true;
@@ -282,6 +297,15 @@ namespace GtkFlow {
                     else if (this.is_suitable_target(this.drag_dock, targeted_dock))
                         this.set_drop_dock(targeted_dock);
 
+                    this.queue_draw();
+                }
+                if (this.resize_node != null) {
+                    // resize the node
+                    Gtk.Allocation alloc;
+                    this.resize_node.get_node_allocation(out alloc);
+                    alloc.width = resize_start_x + (int)e.x + this.drag_diff_x;
+                    alloc.height = resize_start_y + (int)e.y + this.drag_diff_y;
+                    this.resize_node.set_node_allocation(alloc);
                     this.queue_draw();
                 }
             }
