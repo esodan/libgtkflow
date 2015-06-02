@@ -25,6 +25,7 @@ class ConcatNode(GtkFlow.Node):
         self.set_title("Concatenation")
 
         self.set_border_width(10)
+        self.set_show_types(True)
 
     def do_concatenation(self, dock, val=None):
         val_a = self.string_a.val
@@ -46,6 +47,7 @@ class ConversionNode(GtkFlow.Node):
         self.sink.connect("changed", self.do_conversion)
         self.set_title("Number2String")
         self.set_border_width(10)
+        self.set_show_types(True)
 
     def do_conversion(self, dock, val=None):
         self.source.set_value(str(self.sink.val))
@@ -65,6 +67,7 @@ class StringNode(GtkFlow.Node):
 
         self.set_title("String")
         self.set_border_width(10)
+        self.set_show_types(True)
 
     def do_changed(self, widget=None, data=None):
         self.source.set_value(self.entry.get_text())
@@ -72,6 +75,7 @@ class StringNode(GtkFlow.Node):
 class OperationNode(GtkFlow.Node):
     def __init__(self):
         GtkFlow.Node.__init__(self)
+        self.set_show_types(True)
        
         self.summand_a = GtkFlow.Sink.new(float(0))
         self.summand_b = GtkFlow.Sink.new(float(0))
@@ -124,6 +128,7 @@ class OperationNode(GtkFlow.Node):
 class NumberNode(GtkFlow.Node):
     def __init__(self, number=0):
         GtkFlow.Node.__init__(self)
+        self.set_show_types(True)
         self.number = GtkFlow.Source.new(float(number))
         self.number.set_label("output")
         self.add_source(self.number)
@@ -146,6 +151,7 @@ class NumberNode(GtkFlow.Node):
 class PrintNode(GtkFlow.Node):
     def __init__(self):
         GtkFlow.Node.__init__(self)
+        self.set_show_types(True)
         self.number = GtkFlow.Sink.new("")
         self.number.set_label("")
         self.number.connect("changed", self.do_printing)

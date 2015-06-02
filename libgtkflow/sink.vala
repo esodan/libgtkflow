@@ -104,6 +104,20 @@ namespace GtkFlow {
             this.val = v;
         }
 
+        public override void update_layout(){
+            string labelstring;
+            if (this.node != null && this.node.show_types) {
+                labelstring = "%s : <i>%s</i>".printf(
+                    this.label,
+                    this.typestring ?? this.determine_typestring()
+                );
+            } else {
+                labelstring = label;
+            }
+            this.layout.set_markup(labelstring, -1);
+            this.size_changed();
+        }
+
         public void draw_sink(Cairo.Context cr, int offset_x, int offset_y) {
             Gtk.StyleContext sc = this.get_style_context();
             sc.save();

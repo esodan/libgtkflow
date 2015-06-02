@@ -37,6 +37,15 @@ namespace GtkFlow {
         protected string label = "";
 
         /**
+         * The string rendered as typehint for this dock.
+         * If this string is "" and the show_type is set to true
+         * libgtkflow will attempt to determine the type of this
+         * dock and display it, but it produces nicer results to set
+         * them manually.
+         */
+        public string? typestring {get; set; default=null;}
+
+        /**
          * Determines whether this dock is going to be drawn
          * with a mouse-over-halo
          */
@@ -57,13 +66,28 @@ namespace GtkFlow {
          */
         protected GLib.Value val;
 
+        protected string determine_typestring() {
+            GLib.TypeQuery tq;
+            this.val.get_gtype().query(out tq);
+            string s = this.val.type_name();
+            return s;
+        }
+
+        /**
+         * This method builds the captionstring with cairo
+         * and adds the typelabel if the node demands so.
+         * Implementations can be found in Sink and Source
+         */
+        public abstract void update_layout();
+
         /**
          * Set the labelstring
          */
         public virtual void set_label (string label) {
             this.label = label;
-            this.layout.set_text(label, -1);
-            this.size_changed();
+            this.update_layout();
+            if (this.node != null)
+                this.node.queue_draw();
         }
 
         /**

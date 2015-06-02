@@ -86,6 +86,8 @@ namespace GtkFlow {
         private string title = "";
         private Pango.Layout layout;
 
+        public bool show_types {get; set; default=false;}
+
         public Node () {
             this.node_allocation = {0,0,0,0};
             this.recalculate_size();
@@ -134,6 +136,7 @@ namespace GtkFlow {
                 throw new NodeError.ALREADY_HAS_DOCK("This node already has this source");
             sources.append(s);
             s.set_node(this);
+            s.update_layout();
             this.recalculate_size();
             s.size_changed.connect(this.recalculate_size);
         }
@@ -145,6 +148,7 @@ namespace GtkFlow {
                 throw new NodeError.ALREADY_HAS_DOCK("This node already has this sink");
             sinks.append(s);
             s.set_node(this);
+            s.update_layout();
             this.recalculate_size();
             s.size_changed.connect(this.recalculate_size);
         }

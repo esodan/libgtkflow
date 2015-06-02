@@ -96,6 +96,20 @@ namespace GtkFlow {
             return this.sinks;
         }
 
+        public override void update_layout() {
+            string labelstring;
+            if (this.node != null && this.node.show_types) {
+                labelstring = "<i>%s</i> : %s".printf(
+                    this.typestring ?? this.determine_typestring(),
+                    this.label
+                );
+            } else {
+                labelstring = label;
+            }
+            this.layout.set_markup(labelstring, -1);
+            this.size_changed();
+        }
+
         /**
          * Draw this source onto a cairo context
          */
