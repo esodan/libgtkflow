@@ -4,9 +4,15 @@ GtkFlow
 Here you see libgtkflow, a universal library for drawing flow graphs with
 Gtk+ 3.
 
+![GtkFlowRes](https://i.imgur.com/RL6Fl3R.png)
+
+The newest stuff in libgtkflow's development ↑
+Nodes can be deleted by clicking the X-button in the upper right corner.
+Nodes are resizable by drag-n-dropping the lower right corner. The types of the docks can be printed along with their names
+
 ![GtkFlowEvopop](http://i.imgur.com/s7qbTPT.png)
 
-This is a screenshot of libgtkflow rendered with the evopop Gtk3 theme
+This is a screenshot of libgtkflow rendered with the evopop Gtk3 theme ↑
 
 ![GtkFlow](https://i.imgur.com/BWcXGkV.png)
 
