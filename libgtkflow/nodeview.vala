@@ -188,6 +188,7 @@ namespace GtkFlow {
                 }
             }
             this.resize_node = null;
+            this.get_window().set_cursor(null);
             // Try to build a new connection
             if (this.drag_dock != null) {
                 try {
@@ -237,6 +238,17 @@ namespace GtkFlow {
             this.drag_threshold_fulfilled = false;
         }
 
+        private Gdk.Cursor resize_cursor = null;
+        private Gdk.Cursor? get_resize_cursor() {
+            if (resize_cursor == null && this.get_realized()) {
+                resize_cursor = new Gdk.Cursor.for_display(
+                    this.get_window().get_display(),
+                    Gdk.CursorType.BOTTOM_RIGHT_CORNER
+                );
+            }
+            return resize_cursor;
+        }
+
         public override bool motion_notify_event(Gdk.EventMotion e) {
             if (!this.editable)
                 return false;
@@ -249,6 +261,11 @@ namespace GtkFlow {
                 Gdk.Point pos = {(int)e.x, (int)e.y};
                 if (!n.is_on_closebutton(pos))
                     this.close_button_pressed = false;
+                // Update cursor if we are on the resize area
+                if (n.is_on_resize_handle(pos))
+                    this.get_window().set_cursor(this.get_resize_cursor());
+                else if (this.resize_node == null)
+                    this.get_window().set_cursor(null);
                 targeted_dock = n.get_dock_on_position(pos);
                 if (this.drag_dock == null && targeted_dock != this.hovered_dock) {
                     this.set_hovered_dock(targeted_dock);
@@ -265,6 +282,12 @@ namespace GtkFlow {
                     this.hovered_dock.highlight = false;
                 this.hovered_dock = null;
                 this.queue_draw();
+                // Update cursor to be default as we are guaranteed not on any
+                // resize handle outside of any node.
+                // The check for resize node is a cosmetical fix. If there is a
+                // Node bing resized in haste, the cursor tends to flicker
+                if (this.resize_node == null)
+                    this.get_window().set_cursor(null);
             }
 
             // Check if the cursor has been dragged a few pixels (defined by DRAG_THRESHOLD)
