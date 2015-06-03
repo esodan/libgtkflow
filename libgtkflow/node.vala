@@ -104,9 +104,9 @@ namespace GtkFlow {
         }
 
         public void set_node_allocation(Gtk.Allocation alloc) {
-            if (alloc.width < this.get_min_width())
+            if (alloc.width < (int)this.get_min_width())
                 alloc.width = (int)this.get_min_width();
-            if (alloc.height < this.get_min_height())
+            if (alloc.height < (int)this.get_min_height())
                 alloc.height = (int)this.get_min_height();
             this.node_allocation = alloc;
         }
