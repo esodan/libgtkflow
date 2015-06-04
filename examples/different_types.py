@@ -173,7 +173,7 @@ class Calculator(object):
         w = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
         self.nv = GtkFlow.NodeView.new()
 
-        hbox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
+        hbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
         create_numbernode_button = Gtk.Button("Create NumberNode")
         create_numbernode_button.connect("clicked", self.do_create_numbernode)
         hbox.add(create_numbernode_button)
@@ -193,7 +193,7 @@ class Calculator(object):
         create_conversionnode_button.connect("clicked", self.do_create_conversionnode)
         hbox.add(create_conversionnode_button)
 
-        vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
+        vbox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
         vbox.pack_start(hbox, False, False, 0)
         vbox.pack_start(self.nv, True, True, 0)
  
