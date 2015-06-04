@@ -241,12 +241,7 @@ namespace GtkFlow {
             int i = 0;
             Gdk.Point p = {0,0};
 
-            int title_offset = 0;
-            if (this.title != "") {
-                int _, height;
-                this.layout.get_pixel_size(out _,out height);
-                title_offset = height + Node.TITLE_SPACING;
-            }
+            uint title_offset = this.get_title_line_height();
 
             foreach (Dock s in this.sinks) {
                 if (s == d) {
@@ -291,13 +286,7 @@ namespace GtkFlow {
          */
         public uint get_min_height() {
             uint mw = this.border_width*2;
-            if (this.title != "") {
-                int width, height;
-                this.layout.get_pixel_size(out width, out height);
-                if (height < DELETE_BTN_SIZE)
-                    height = DELETE_BTN_SIZE;
-                mw += height + Node.TITLE_SPACING;
-            }
+            mw += this.get_title_line_height();
             foreach (Dock d in this.sinks) {
                 mw += d.get_min_height();
             }
@@ -344,6 +333,16 @@ namespace GtkFlow {
             return mw + this.border_width*2;
         }
 
+        private uint get_title_line_height() {
+            int width, height;
+            if (this.title == "") {
+                 width = height = 0;
+            } else {
+                this.layout.get_pixel_size(out width, out height);
+            }
+            return (uint)Math.fmax(height, DELETE_BTN_SIZE) + Node.TITLE_SPACING;
+        }
+
         /**
          * Determines whether the mousepointer is hovering over a dock on this node
          */
@@ -353,13 +352,9 @@ namespace GtkFlow {
 
             int i = 0;
 
-            int dock_x, dock_y, title_offset;
-            title_offset = 0;
-            if (this.title != "") {
-                int _, height;
-                this.layout.get_pixel_size(out _,out height);
-                title_offset = height + Node.TITLE_SPACING;
-            }
+            int dock_x, dock_y;
+            uint title_offset;
+            title_offset = this.get_title_line_height();
             foreach (Dock s in this.sinks) {
                 dock_x = (int)(this.node_allocation.x + this.border_width);
                 dock_y = (int)(this.node_allocation.y + this.border_width + title_offset
@@ -472,11 +467,7 @@ namespace GtkFlow {
                     cr.restore();
                 }
             }
-            if (this.title != "" || (this.node_view != null && this.node_view.editable)) {
-                int width, height;
-                this.layout.get_pixel_size(out width, out height);
-                y_offset += height + Node.TITLE_SPACING;
-            }
+            y_offset += (int)this.get_title_line_height();
 
             foreach (Sink s in this.sinks) {
                 s.draw_sink(cr, alloc.x + (int)this.border_width,
