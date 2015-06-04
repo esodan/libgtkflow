@@ -60,6 +60,7 @@ namespace GtkFlow {
                 this._source.remove_sink(this);
             Source s = this._source;
             this._source = null;
+            this.invalidate();
             this.disconnected(s);
         }
 
@@ -69,7 +70,7 @@ namespace GtkFlow {
          * This Sink
          */
         public GLib.Value get_value() throws NodeError {
-            if (this.source != null) {
+            if (this.source != null && this.valid) {
                 return this.val;
             } else {
                 throw new NodeError.NO_SOURCE("This sink has no source to drain data from");
@@ -90,6 +91,11 @@ namespace GtkFlow {
             return this.source != null;
         }
 
+        public override void invalidate () {
+            this.valid = false;
+            this.changed(this.initial);
+        }
+
         public void change_value(GLib.Value v) throws NodeError {
             if (this.val.type() != v.type())
                 throw new NodeError.INCOMPATIBLE_VALUE(
@@ -97,6 +103,7 @@ namespace GtkFlow {
                         v.type().name(),this.val.type().name())
                 );
             this.val = v;
+            this.valid = true;
             this.changed(v);
         }
 

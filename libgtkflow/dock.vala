@@ -66,6 +66,21 @@ namespace GtkFlow {
          */
         protected GLib.Value val;
 
+        /**
+         * The initial value that has been set to this dock
+         * The dock will be set to this value when it is rendered
+         * invalid
+         */
+        protected GLib.Value initial;
+
+        /**
+         * This variable is true if the dock currently
+         * holds a valid value
+         */
+        protected bool valid = false;
+
+        public abstract void invalidate();
+
         protected string determine_typestring() {
             GLib.TypeQuery tq;
             this.val.get_gtype().query(out tq);
@@ -110,7 +125,7 @@ namespace GtkFlow {
          */
         protected Dock(GLib.Value initial) {
             base();
-            this.val = initial;
+            this.val = this.initial = initial;
             this.layout = this.create_pango_layout(this.label);
         }
 

@@ -42,6 +42,12 @@ namespace GtkFlow {
                 s.change_value(v);
         }
 
+        public override void invalidate() {
+            foreach (Sink s in this.sinks) {
+                s.invalidate();
+            }
+        }
+
         public virtual void add_sink(Sink s) throws NodeError {
             if (this.val.type() != s.val.type()) {
                 throw new NodeError.INCOMPATIBLE_SINKTYPE(
@@ -54,7 +60,13 @@ namespace GtkFlow {
                 this.sinks.append(s);
             if (!s.connected_to(this))
                 s.set_source(this);
-            s.change_value(this.val);
+            if (this.valid) {
+                s.change_value(this.val);
+            }
+        }
+
+        public new void set_valid() {
+            this.valid = true;
         }
 
         public virtual void remove_sink(Sink s){
@@ -62,11 +74,6 @@ namespace GtkFlow {
                 this.sinks.remove(s);
             if (s.connected_to(this))
                 s.unset_source();
-            try {
-                s.change_value(0);
-            } catch {
-                warning("Could not reset the sink");
-            }
             this.disconnected(s);
         }
 
