@@ -187,8 +187,6 @@ namespace GtkFlow {
                     }
                 }
             }
-            this.resize_node = null;
-            this.get_window().set_cursor(null);
             // Try to build a new connection
             if (this.drag_dock != null) {
                 try {
@@ -236,6 +234,8 @@ namespace GtkFlow {
             this.drop_dock = null;
             this.temp_connector = null;
             this.drag_threshold_fulfilled = false;
+            this.resize_node = null;
+            this.get_window().set_cursor(null);
         }
 
         private Gdk.Cursor resize_cursor = null;
