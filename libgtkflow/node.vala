@@ -489,7 +489,6 @@ namespace GtkFlow {
                 child_alloc.height = alloc.height - 2 * (int)border_width - y_offset;
                 child.size_allocate(child_alloc);
 
-                child.get_allocation(out child_alloc);
                 this.propagate_draw(child, cr);
             }
             // Draw resize handle
