@@ -5,50 +5,30 @@ import unittest
 from gi.repository import GLib
 from gi.repository import GtkFlow
 
-class AddNode(GtkFlow.Node):
-    def __init__(self):
-        GtkFlow.Node.__init__(self)
-        self.num_1 = GtkFlow.Sink.new(0)
-        self.num_2 = GtkFlow.Sink.new(0)
-        self.result = GtkFlow.Source.new(0)
+"""
+Contains tests that can only be done with nodes in the game
+"""
+class TestNode(unittest.TestCase):
+    """
+    Test Recursion
+    """
+    def test_recursion(self):
+        node1 = GtkFlow.Node.new()
+        node1_src = GtkFlow.Source.new(0)
+        node1_snk = GtkFlow.Sink.new(0)
+        node2 = GtkFlow.Node.new()
+        node2_src = GtkFlow.Source.new(0)
+        node2_snk = GtkFlow.Sink.new(0)
+        node1_src.add_sink(node2_snk)
+        self.assertTrue(node1_src.connected_to(node2_snk))
+        with self.assertRaises(GLib.Error) as err:
+            node2_src.add_sink(node1_snk)
+        self.assertFalse(node2_src.connected_to(node1_snk))
 
-        self.add_sink(self.num_1)
-        self.add_sink(self.num_2)
-        self.add_source(self.result)
-
-        self.num_1.connect("changed", self.recalculate_result)
-        self.num_2.connect("changed", self.recalculate_result)
-
-    def recalculate_result(self, source, new_value):
-        try:
-            self.result.set_value(self.num_1.get_value() + self.num_2.get_value())
-        except GLib.Error:
-            print("Konnte noch keinen scheiss berechnen")
-
-class PrintNumberNode(GtkFlow.Node):
-    def __init__(self):
-        GtkFlow.Node.__init__(self)
-        self.input_value = GtkFlow.Sink.new(0)
-
-        self.add_sink(self.input_value)
-
-        self.input_value.connect("changed", self.print_input)
-
-    def print_input(self, source, value):
-        print(value)
-
-class NumberGeneratorNode(GtkFlow.Node):
-    def __init__(self, x):
-        GtkFlow.Node.__init__(self)
-        self.output_value = GtkFlow.Source.new(x)
-        self.add_source(self.output_value)
-        self.current_value = x
-
-    def incr(self):
-        self.current_value +=1
-        self.output_value.set_value(self.current_value)
+        node1_src.remove_sink(node2_snk)
+        self.assertFalse(node1_src.connected_to(node2_snk))
+        node2_src.add_sink(node1_snk)
+        self.assertTrue(node2_src.connected_to(node1_snk))
         
-    def decr(self):
-        self.current_value -=1
-        self.output_value.set_value(self.current_value)
+
 
