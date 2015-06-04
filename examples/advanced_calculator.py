@@ -45,8 +45,12 @@ class OperationNode(GtkFlow.Node):
     def do_calculations(self, dock, val=None):
         op = self.combobox.get_active_text() 
         
-        val_a = self.summand_a.val
-        val_b = self.summand_b.val    
+        try:
+            val_a = self.summand_a.get_value()
+            val_b = self.summand_b.get_value()
+        except:
+            self.result.invalidate()
+            return
     
         if op == "+":
             self.result.set_value(val_a+val_b)
@@ -56,11 +60,14 @@ class OperationNode(GtkFlow.Node):
             self.result.set_value(val_a*val_b)
         elif op == "/":
             self.result.set_value(val_a/val_b)
+        else:
+            self.result.invalidate()
 
 class NumberNode(GtkFlow.Node):
     def __init__(self, number=0):
         GtkFlow.Node.__init__(self)
         self.number = GtkFlow.Source.new(float(number))
+        self.number.set_valid()
         self.number.set_label("output")
         self.add_source(self.number)
         
@@ -96,7 +103,12 @@ class PrintNode(GtkFlow.Node):
         self.set_border_width(10)
 
     def do_printing(self, dock, val):
-        self.childlabel.set_text(str(self.number.val))
+        try:
+            n = self.number.get_value()
+            print (n)
+            self.childlabel.set_text(str(n))
+        except:
+            self.childlabel.set_text("")
         
 class Calculator(object):
     def __init__(self):

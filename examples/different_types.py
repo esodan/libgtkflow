@@ -28,8 +28,15 @@ class ConcatNode(GtkFlow.Node):
         self.set_show_types(True)
 
     def do_concatenation(self, dock, val=None):
-        val_a = self.string_a.val
-        val_b = self.string_b.val
+        val_a = val_b = ""
+        try:
+            val_a = self.string_a.get_value()
+        except:
+            pass
+        try:
+            val_b = self.string_b.get_value()
+        except:
+            pass
         self.result.set_value(val_a+val_b)
 
 class ConversionNode(GtkFlow.Node):
@@ -50,7 +57,11 @@ class ConversionNode(GtkFlow.Node):
         self.set_show_types(True)
 
     def do_conversion(self, dock, val=None):
-        self.source.set_value(str(self.sink.val))
+        try:
+            v = self.sink.get_value()
+            self.source.set_value(str(v))
+        except:
+            self.source.invalidate()
 
 class StringNode(GtkFlow.Node):
     def __init__(self):
@@ -58,6 +69,7 @@ class StringNode(GtkFlow.Node):
         
         self.source = GtkFlow.Source.new("")
         self.source.set_label("output")
+        self.source.set_valid()
         self.add_source(self.source)
 
         self.entry = Gtk.Entry()
@@ -113,8 +125,12 @@ class OperationNode(GtkFlow.Node):
     def do_calculations(self, dock, val=None):
         op = self.combobox.get_active_text() 
         
-        val_a = self.summand_a.val
-        val_b = self.summand_b.val    
+        try:
+            val_a = self.summand_a.get_value()
+            val_b = self.summand_b.get_value()
+        except:
+            self.result.invalidate()
+            return
     
         if op == "+":
             self.result.set_value(val_a+val_b)
@@ -124,6 +140,8 @@ class OperationNode(GtkFlow.Node):
             self.result.set_value(val_a*val_b)
         elif op == "/":
             self.result.set_value(val_a/val_b)
+        else:
+            self.result.invalidate()
 
 class NumberNode(GtkFlow.Node):
     def __init__(self, number=0):
@@ -131,6 +149,7 @@ class NumberNode(GtkFlow.Node):
         self.set_show_types(True)
         self.number = GtkFlow.Source.new(float(number))
         self.number.set_label("output")
+        self.number.set_valid()
         self.add_source(self.number)
         
         adjustment = Gtk.Adjustment(0, 0, 100, 1, 10, 0)
@@ -152,10 +171,10 @@ class PrintNode(GtkFlow.Node):
     def __init__(self):
         GtkFlow.Node.__init__(self)
         self.set_show_types(True)
-        self.number = GtkFlow.Sink.new("")
-        self.number.set_label("")
-        self.number.connect("changed", self.do_printing)
-        self.add_sink(self.number)
+        self.sink = GtkFlow.Sink.new("")
+        self.sink.set_label("")
+        self.sink.connect("changed", self.do_printing)
+        self.add_sink(self.sink)
 
         self.childlabel = Gtk.Label()
         self.add(self.childlabel)
@@ -166,9 +185,13 @@ class PrintNode(GtkFlow.Node):
         self.set_border_width(10)
 
     def do_printing(self, dock, val):
-        self.childlabel.set_text(self.number.val)
+        try:
+            v = self.sink.get_value()
+            self.childlabel.set_text(v)
+        except:
+            self.childlabel.set_text("")
         
-class Calculator(object):
+class TypesExampleApplication(object):
     def __init__(self):
         w = Gtk.Window.new(Gtk.WindowType.TOPLEVEL)
         self.nv = GtkFlow.NodeView.new()
@@ -220,4 +243,4 @@ class Calculator(object):
         sys.exit(0)
 
 if __name__ == "__main__":
-    Calculator()
+    TypesExampleApplication()
