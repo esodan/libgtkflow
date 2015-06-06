@@ -156,7 +156,7 @@ namespace GtkFlow {
                     this.resize_node.get_node_allocation(out alloc);
                     this.resize_start_x = alloc.width;
                     this.resize_start_y = alloc.height;
-                } else if (this.drag_node == null) {
+                } else if (this.resize_node == null && this.drag_node == null) {
                     this.drag_node = n;
                     this.drag_node.get_node_allocation(out alloc);
                 } else {
