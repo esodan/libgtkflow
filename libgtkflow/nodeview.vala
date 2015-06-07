@@ -24,7 +24,7 @@ namespace GtkFlow {
      * A Gtk Widget that shows nodes and their connections to the user
      * It also lets the user edit said connections.
      */
-    public class NodeView : Gtk.Container {
+    public class NodeView : Gtk.Container, Gtk.Scrollable {
         private List<Node> nodes = new List<Node>();
    
         // The node that is currently being dragged around
@@ -56,6 +56,32 @@ namespace GtkFlow {
         // The connector that is being used to draw a non-established connection
         private Gtk.Allocation? temp_connector = null;
 
+        public Gtk.Adjustment _hadjustment = null;
+        public Gtk.Adjustment hadjustment {
+            get {
+                return this._hadjustment;
+            }
+            set {
+                this._hadjustment = value;
+                this._hadjustment.value_changed.connect(this.queue_draw);
+            }
+        }
+        public Gtk.Adjustment _vadjustment = null;
+        public Gtk.Adjustment vadjustment {
+            get {
+                return this._vadjustment;
+
+            }
+            set {
+                this._vadjustment = value;
+                this._vadjustment.value_changed.connect(this.queue_draw);
+            }
+        }
+        public Gtk.ScrollablePolicy hscroll_policy {get; set;
+                                                    default=Gtk.ScrollablePolicy.MINIMUM;}
+        public Gtk.ScrollablePolicy vscroll_policy {get; set;
+                                                    default=Gtk.ScrollablePolicy.MINIMUM;}
+
         /**
          * Determines whether the displayed Nodes can be edited by the user
          * e.g. alter their positions by dragging and dropping or drawing
@@ -65,6 +91,8 @@ namespace GtkFlow {
 
         public NodeView() {
             Object();
+            this.vadjustment = new Gtk.Adjustment(0, 0, 100, 50, 100, 100);
+            this.hadjustment = new Gtk.Adjustment(0, 0, 100, 50, 100, 100);
             this.set_size_request(100,100);
         }
 
@@ -100,6 +128,8 @@ namespace GtkFlow {
 
         private Node? get_node_on_position(double x,double y) {
             Gtk.Allocation alloc;
+            x += this.hadjustment.value;
+            y += this.vadjustment.value;
             foreach (Node n in this.nodes) {
                 n.get_node_allocation(out alloc);
                 if ( x >= alloc.x && y >= alloc.y &&
@@ -307,6 +337,7 @@ namespace GtkFlow {
                     alloc.x = (int)e.x - this.drag_diff_x;
                     alloc.y = (int)e.y - this.drag_diff_y;
                     this.drag_node.set_node_allocation(alloc);
+                    this.recalculate_size();
                     this.queue_draw();
                 }
                 if (this.drag_dock != null) {
@@ -332,6 +363,22 @@ namespace GtkFlow {
                 }
             }
             return false;
+        }
+
+        private void recalculate_size() {
+            double x_min = 0, x_max = 0, y_min = 0, y_max = 0;
+            Gtk.Allocation alloc;
+            foreach (Node n in this.nodes) {
+                n.get_node_allocation(out alloc);
+                x_min = Math.fmin(x_min, alloc.x);
+                x_max = Math.fmax(x_max, alloc.x+alloc.width);
+                y_min = Math.fmin(y_min, alloc.y);
+                y_max = Math.fmax(y_max, alloc.y+alloc.height);
+            }
+            this.hadjustment.lower = x_min;
+            this.hadjustment.upper = x_max;
+            this.vadjustment.lower = y_min;
+            this.vadjustment.upper = y_max;
         }
 
         /**
@@ -402,8 +449,6 @@ namespace GtkFlow {
             Gdk.RGBA bg = sc.get_background_color(Gtk.StateFlags.NORMAL);
             cr.set_source_rgba(bg.red, bg.green, bg.blue, bg.alpha);
             cr.paint();
-            Gtk.Allocation alloc;
-            this.get_allocation(out alloc);
             // Draw nodes
             this.nodes.reverse();
             foreach (Node n in this.nodes)
@@ -444,7 +489,7 @@ namespace GtkFlow {
                 int w = this.temp_connector.width;
                 int h = this.temp_connector.height;
                 cr.move_to(this.temp_connector.x, this.temp_connector.y);
-                cr.rel_curve_to(this.temp_connector.width,0,0,h,w,h);
+                cr.rel_curve_to(w,0,0,h,w,h);
                 cr.stroke();
             }
             return true;

@@ -241,12 +241,17 @@ namespace GtkFlow {
             int i = 0;
             Gdk.Point p = {0,0};
 
+            if (this.node_view != null) {
+                p.x -= (int)this.node_view.hadjustment.get_value();
+                p.y -= (int)this.node_view.vadjustment.get_value();
+            }
+
             uint title_offset = this.get_title_line_height();
 
             foreach (Dock s in this.sinks) {
                 if (s == d) {
-                    p.x = (int)(this.node_allocation.x + this.border_width + Dock.HEIGHT/2);
-                    p.y = (int)(this.node_allocation.y + this.border_width + title_offset
+                    p.x += (int)(this.node_allocation.x + this.border_width + Dock.HEIGHT/2);
+                    p.y += (int)(this.node_allocation.y + this.border_width + title_offset
                               + Dock.HEIGHT/2 + i * s.get_min_height());
                     return p;
                 }
@@ -254,9 +259,9 @@ namespace GtkFlow {
             }
             foreach (Dock s in this.sources) {
                 if (s == d) {
-                    p.x = (int)(this.node_allocation.x - this.border_width
+                    p.x += (int)(this.node_allocation.x - this.border_width
                               + this.node_allocation.width - Dock.HEIGHT/2);
-                    p.y = (int)(this.node_allocation.y + this.border_width + title_offset
+                    p.y += (int)(this.node_allocation.y + this.border_width + title_offset
                               + Dock.HEIGHT/2 + i * s.get_min_height());
                     return p;
                 }
@@ -350,25 +355,32 @@ namespace GtkFlow {
             int x = p.x;
             int y = p.y;
 
+            stdout.printf("maus %d %d\n",x,y);
+
+            double scroll_x = this.node_view != null ? this.node_view.hadjustment.value : 0;
+            double scroll_y = this.node_view != null ? this.node_view.vadjustment.value : 0;
+
             int i = 0;
 
             int dock_x, dock_y;
             uint title_offset;
             title_offset = this.get_title_line_height();
             foreach (Dock s in this.sinks) {
-                dock_x = (int)(this.node_allocation.x + this.border_width);
-                dock_y = (int)(this.node_allocation.y + this.border_width + title_offset
-                         + i * s.get_min_height());
+                dock_x = this.node_allocation.x + (int)this.border_width - (int)scroll_x;
+                dock_y = this.node_allocation.y + (int)this.border_width + (int)title_offset
+                         + i * s.get_min_height() - (int)scroll_y;
+                stdout.printf("dock %d %d\n", dock_x, dock_y);
                 if (x > dock_x && x < dock_x + Dock.HEIGHT
                         && y > dock_y && y < dock_y + Dock.HEIGHT )
                     return s;
                 i++;
             }
             foreach (Dock s in this.sources) {
-                dock_x = (int)(this.node_allocation.x + this.node_allocation.width 
-                         - this.border_width - Dock.HEIGHT);
-                dock_y = (int)(this.node_allocation.y + this.border_width + title_offset
-                         + i * s.get_min_height());
+                dock_x = this.node_allocation.x + this.node_allocation.width
+                         - (int)this.border_width - Dock.HEIGHT - (int)scroll_x;
+                dock_y = this.node_allocation.y + (int)this.border_width + (int)title_offset
+                         + i * s.get_min_height() - (int)scroll_y;
+                stdout.printf("dock %d %d\n", dock_x, dock_y);
                 if (x > dock_x && x < dock_x + Dock.HEIGHT
                         && y > dock_y && y < dock_y + Dock.HEIGHT )
                     return s;
@@ -384,11 +396,15 @@ namespace GtkFlow {
             int x = p.x;
             int y = p.y;
 
+            double scroll_x = this.node_view != null ? this.node_view.hadjustment.value : 0;
+            double scroll_y = this.node_view != null ? this.node_view.vadjustment.value : 0;
+
             Gtk.Allocation alloc;
             this.get_node_allocation(out alloc);
-            int x_left = alloc.x + alloc.width - DELETE_BTN_SIZE - (int)border_width;
+            int x_left = alloc.x + alloc.width - DELETE_BTN_SIZE
+                                 - (int)border_width - (int)scroll_x;
             int x_right = x_left + DELETE_BTN_SIZE;
-            int y_top = alloc.y + (int)border_width;
+            int y_top = alloc.y + (int)border_width - (int)scroll_y;
             int y_bot = y_top + DELETE_BTN_SIZE;
             return x > x_left && x < x_right && y > y_top && y < y_bot;
         }
@@ -400,11 +416,14 @@ namespace GtkFlow {
             int x = p.x;
             int y = p.y;
 
+            double scroll_x = this.node_view != null ? this.node_view.hadjustment.value : 0;
+            double scroll_y = this.node_view != null ? this.node_view.vadjustment.value : 0;
+
             Gtk.Allocation alloc;
             this.get_node_allocation(out alloc);
-            int x_left = alloc.x + alloc.width - RESIZE_HANDLE_SIZE;
+            int x_left = alloc.x + alloc.width - RESIZE_HANDLE_SIZE - (int)scroll_x;
             int x_right = alloc.x + alloc.width;
-            int y_top = alloc.y + alloc.height - RESIZE_HANDLE_SIZE;
+            int y_top = alloc.y + alloc.height - RESIZE_HANDLE_SIZE - (int)scroll_y;
             int y_bot = alloc.y + alloc.height;
             return x > x_left && x < x_right && y > y_top && y < y_bot;
         }
@@ -428,6 +447,11 @@ namespace GtkFlow {
         public void draw_node(Cairo.Context cr) {
             Gtk.Allocation alloc;
             this.get_node_allocation(out alloc);
+
+            if (this.node_view != null) {
+                alloc.x -= (int)this.node_view.hadjustment.get_value();
+                alloc.y -= (int)this.node_view.vadjustment.get_value();
+            }
 
             Gtk.StyleContext sc = this.get_style_context();
             sc.save();
