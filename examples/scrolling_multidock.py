@@ -48,7 +48,6 @@ class AddNode(GtkFlow.Node):
         self.set_border_width(10)
 
     def do_calculations(self, dock, val=None):
-        print ("ohai")
         res = 0
         for summand in self.summands:
             try:

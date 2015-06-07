@@ -433,10 +433,10 @@ namespace GtkFlow {
 
             Gtk.Allocation alloc;
             this.get_node_allocation(out alloc);
-            int x_left = alloc.x + alloc.width - RESIZE_HANDLE_SIZE - (int)scroll_x;
-            int x_right = alloc.x + alloc.width;
-            int y_top = alloc.y + alloc.height - RESIZE_HANDLE_SIZE - (int)scroll_y;
-            int y_bot = alloc.y + alloc.height;
+            int x_right = alloc.x + alloc.width - (int)scroll_x;
+            int x_left = x_right - RESIZE_HANDLE_SIZE;
+            int y_bot = alloc.y + alloc.height - (int)scroll_y;
+            int y_top = y_bot - RESIZE_HANDLE_SIZE;
             return x > x_left && x < x_right && y > y_top && y < y_bot;
         }
 
