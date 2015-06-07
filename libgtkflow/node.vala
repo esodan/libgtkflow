@@ -355,8 +355,6 @@ namespace GtkFlow {
             int x = p.x;
             int y = p.y;
 
-            stdout.printf("maus %d %d\n",x,y);
-
             double scroll_x = this.node_view != null ? this.node_view.hadjustment.value : 0;
             double scroll_y = this.node_view != null ? this.node_view.vadjustment.value : 0;
 
@@ -369,7 +367,6 @@ namespace GtkFlow {
                 dock_x = this.node_allocation.x + (int)this.border_width - (int)scroll_x;
                 dock_y = this.node_allocation.y + (int)this.border_width + (int)title_offset
                          + i * s.get_min_height() - (int)scroll_y;
-                stdout.printf("dock %d %d\n", dock_x, dock_y);
                 if (x > dock_x && x < dock_x + Dock.HEIGHT
                         && y > dock_y && y < dock_y + Dock.HEIGHT )
                     return s;
@@ -380,7 +377,6 @@ namespace GtkFlow {
                          - (int)this.border_width - Dock.HEIGHT - (int)scroll_x;
                 dock_y = this.node_allocation.y + (int)this.border_width + (int)title_offset
                          + i * s.get_min_height() - (int)scroll_y;
-                stdout.printf("dock %d %d\n", dock_x, dock_y);
                 if (x > dock_x && x < dock_x + Dock.HEIGHT
                         && y > dock_y && y < dock_y + Dock.HEIGHT )
                     return s;
