@@ -12,6 +12,7 @@ class AddNode(GtkFlow.Node):
         self.add_sink(summand_a)
         summand_a.connect("changed", self.do_calculations)
         self.summands.append(summand_a)
+        self.do_calculations(None)
  
     def remove_summand(self, widget=None, data=None):
         summand = self.summands[len(self.summands)-1]

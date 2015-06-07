@@ -65,13 +65,29 @@ namespace GtkFlow {
         NO_SUCH_DOCK
     }
 
+    public interface INode : GLib.Object {
+        public abstract void disconnect_all();
+        public abstract void draw_node(Cairo.Context cr);
+        public abstract Dock? get_dock_on_position(Gdk.Point p);
+        public abstract uint get_min_height();
+        public abstract uint get_min_width();
+        public abstract void get_node_allocation(out Gtk.Allocation a);
+        public abstract bool is_on_closebutton(Gdk.Point p);
+        public abstract bool is_on_resize_handle(Gdk.Point p);
+        public abstract bool is_recursive(Node from, bool initial=false);
+        public abstract void set_node_allocation(Gtk.Allocation a);
+        public abstract void set_node_view(NodeView? n);
+        public abstract void set_position(int x, int y);
+        public abstract unowned List<Source> get_sources();
+        public abstract Gdk.Point get_dock_position(Dock d) throws NodeError;
+    }
 
     /**
      * Represents an element that can generate, process or receive data
      * This is done by adding Sources and Sinks to it. The inner logic of
      * The node can be represented towards the user as arbitrary Gtk widget.
      */
-    public class Node : Gtk.Bin {
+    public class Node : Gtk.Bin, INode {
         // Determines the space between the title and the first dock (y-axis)
         // as well as the space between the title and the close-button if any (x-axis)
         private const int TITLE_SPACING = 15;
