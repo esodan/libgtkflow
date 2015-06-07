@@ -438,12 +438,6 @@ namespace GtkFlow {
             this.queue_draw();
         }
 
-        public override bool leave_notify_event(Gdk.EventCrossing e) {
-            if (e.detail != Gdk.NotifyType.INFERIOR)
-                this.stop_dragging();
-            return false;
-        }
-
         public override bool draw(Cairo.Context cr) {
             Gtk.StyleContext sc = this.get_style_context();
             Gdk.RGBA bg = sc.get_background_color(Gtk.StateFlags.NORMAL);
