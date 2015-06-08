@@ -97,13 +97,19 @@ namespace GtkFlow {
         }
 
         public override void add(Gtk.Widget w) {
-            assert(w is INode);
+            if (!(w is INode)) {
+                warning("Tried to add a non-node to NodeView");
+                return;
+            }
             this.add_node(w as INode);
             w.set_parent(this);
         }
 
         public override void remove(Gtk.Widget w) {
-            assert(w is INode);
+            if (!(w is INode)) {
+                warning("Tried to remove a non-node to NodeView");
+                return;
+            }
             this.remove_node(w as INode);
             w.unparent();
         }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glade-catalog supports="gtkbuilder"
+               name    ="GtkFlow"
+               library ="libgtkflow-0.2.so"
+               domain  ="gtkflow-0.2"
+               depends ="gtk+"
+               book    ="gtkflow">
+    <glade-widget-classes>
+        <glade-widget-class title="Node View" name="GtkFlowNodeView" generic-name="nodeview">
+            <properties>
+                <property id="editable"/>
+            </properties>
+        </glade-widget-class>
+    </glade-widget-classes>
+    
+    <glade-widget-group title="Flow Graphs" name="GtkFlow">
+        <glade-widget-class-ref name="GtkFlowNodeView"/>
+    </glade-widget-group>
+</glade-catalog>
+            
