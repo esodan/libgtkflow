@@ -11,4 +11,4 @@ URL: https://github.com/grindhold/libgtkflow
 Version: @VERSION@
 Requires: glib-2.0 gobject-2.0 gtk+-3.0
 Libs: -L${libdir} -lgtkflow-@API_VERSION@
-Cflags: -I${includedir}/libgtkflow-@API_VERSION@
+Cflags: -I${includedir}/gtkflow-@API_VERSION@
