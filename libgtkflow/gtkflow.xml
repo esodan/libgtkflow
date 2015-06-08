@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <glade-catalog supports="gtkbuilder"
-               name    ="GtkFlow"
+               name    ="gtkflow"
                library ="libgtkflow-0.2.so"
                domain  ="gtkflow-0.2"
                depends ="gtk+"
