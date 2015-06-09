@@ -13,11 +13,12 @@ lib_LTLIBRARIES = libgflow-0.2.la
 # Vala source code
 sources = \
 	namespace-info.vala \
-	dock.vala \
-	node.vala \
-	nodeview.vala \
-	sink.vala \
-	source.vala
+	gflow-dock.vala \
+	gflow-node.vala \
+	gflow-simple-sink.vala \
+	gflow-simple-source.vala \
+	gflow-sink.vala \
+	gflow-source.vala
 
 
 ### General Compilation flags

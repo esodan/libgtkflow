@@ -27,14 +27,12 @@ namespace GFlow {
     public interface Source : Object, Dock {
         /**
         * FIXME This should be read-only
-        */
-        private List<Sink> sinks = new List<Sink>();
+        * FIXME May be the way to make sinks read-only is to return an owned copy of it to avoid writes on lists
+         * Returns the sinks that this source is connected to
+         */
+        public abstract List<Sink> sinks { get; }
 
-        public Source(GLib.Value initial) {
-            base(initial);
-        }
-
-        public void set_value(GLib.Value v) throws NodeError {
+        public virtual void set_value(GLib.Value v) throws NodeError {
             if (this.val.type() != v.type())
                 throw new NodeError.INCOMPATIBLE_VALUE(
                     "Cannot set a %s value to this %s Source".printf(
@@ -55,8 +53,8 @@ namespace GFlow {
             }
             if (this.sinks.index(s) == -1)
                 this.sinks.append(s);
-            if (!s.connected_to(this))
-                s.set_source(this);
+            if (!((Dock) s).is_connected_to(this))
+                s.source = this;
             if (this.valid) {
                 s.change_value(this.val);
             }
@@ -69,7 +67,7 @@ namespace GFlow {
         public virtual void remove_sink(Sink s){
             if (this.sinks.index(s) != -1)
                 this.sinks.remove(s);
-            if (s.connected_to(this))
+            if (s.is_connected_to(this))
                 s.unset_source();
             this.disconnected(s);
         }
@@ -77,13 +75,6 @@ namespace GFlow {
         public virtual void remove_sinks () {
             foreach (Sink s in this.sinks)
                 this.remove_sink (s);
-        }
-
-        /** FIXME May be the way to make sinks read-only is to return an owned copy of it to avoid writes on lists
-         * Returns the sinks that this source is connected to
-         */
-        public virtual unowned List<Sink> get_sinks() {
-            return this.sinks;
         }
     }
 }

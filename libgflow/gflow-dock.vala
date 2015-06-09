@@ -46,32 +46,32 @@ namespace GFlow {
         /**
          * Determines whether this dock is active
          */
-        public abstract bool active {get; set; default=false;}
+        public abstract bool active { get; set; }
 
         /**
          * A reference to the node this Dock resides in
          */
-        public abstract weak Node? node { get; set; };
+        public abstract weak Node? node { get; set; }
 
         /**
          * The value that is stored in this Dock
          * FIXME Return NULL if invalid source or sink in use
          * FIXME Consider that this value could be a stream not a fixed value
          */
-        public abstract GLib.Value? val { get; };
+        public abstract GLib.Value? val { get; set; }
 
         /**
          * The initial value that has been set to this dock
          * The dock will be set to this value when it is rendered
          * invalid
          */
-        public abstract GLib.Value initial { get; };
+        public abstract GLib.Value? initial { get; }
 
         /**
          * This variable is true if the dock currently
          * holds a valid value
          */
-        public abstract bool is_valid { get; };
+        public abstract bool valid { get; }
 
         /**
          * This signal is being triggered, when there is a connection being established
@@ -93,6 +93,8 @@ namespace GFlow {
         public abstract void invalidate ();
 
         public abstract bool is_connected ();
+
+        public abstract bool is_connected_to (Dock dock);
 
         // FIXME: This could be changed to get_stypestring
         public virtual string determine_typestring () {

@@ -27,33 +27,43 @@ namespace GFlow {
         // Dock interface
         private GLib.Value _val;
         private GLib.Value _initial;
+        private bool _valid = false;
 
         public string? name { get; set; }
         public bool highlight { get; set; }
         public bool active {get; set; default=false;}
-        public weak Node? node { get; set; };
-        public GLib.Value val { get { return _val; } };
-        public GLib.Value initial { get { return _initial; } };
-        public bool is_valid { get; };
+        public weak Node? node { get; set; }
+        public GLib.Value? val {
+          get { return _val; }
+          set {
+            _val = value;
+            changed ();
+          }
+        }
+        public GLib.Value? initial { get { return _initial; } }
+        public bool valid { get { return _valid; } }
         // Source interface
         private List<Sink> _sinks = new List<Sink> ();
         public List<Sink> sinks { get { return _sinks; } }
         // FIXME This should not be set by users is a mutter of test to know if source should work
         public new void set_valid() {
-            this.valid = true;
+            this._valid = true;
         }
         /**
          * Returns true if this Source is connected to the given Sink
          */
-        public bool is_connected_to (Sink s) {
-            return this.sinks.index(s) != -1;
+        public bool is_connected_to (Dock dock) {
+            if (!(dock is Sink)) return false;
+            return this.sinks.index((Sink) dock) != -1;
         }
 
         /**
          * Returns true if this Source is connected to one or more Sinks
          */
-        public override bool is_connected() {
+        public bool is_connected() {
             return this.sinks.length() > 0;
         }
+        // FIXME: Added to implement the one on Dock - Review
+        public void invalidate () { _valid = false; }
     }
 }

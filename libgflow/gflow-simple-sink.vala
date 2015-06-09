@@ -27,31 +27,26 @@ namespace GFlow {
         // Dock interface
         private GLib.Value _val;
         private GLib.Value _initial;
+        private bool _valid = false;
 
         public string? name { get; set; }
         public bool highlight { get; set; }
         public bool active {get; set; default=false;}
-        public weak Node? node { get; set; };
-        public GLib.Value val { get { return _val; } };
-        public GLib.Value initial { get { return _initial; } };
-        public bool is_valid { get; };
+        public weak Node? node { get; set; }
+        public GLib.Value? val { get { return _val; } set { change_value (value); } }
+        public GLib.Value? initial { get { return _initial; } }
+        public bool valid { get { return _valid; } }
         // Sink Interface
         private weak Source? _source;
         public weak Source? source {
             get{
                 return this._source;
             }
+            set { change_source (value); }
         }
 
-        public Sink(GLib.Value initial) {
+        public SimpleSink(GLib.Value initial) {
             base(initial);
-        }
-
-        /**
-         * Returns true if this Sink is connected to the given Source
-         */
-        public bool is_connected_to (Source s) {
-            return this.source == s;
         }
 
         /**
@@ -61,9 +56,14 @@ namespace GFlow {
             return this.source != null;
         }
 
-        public override void invalidate () {
-            this.valid = false;
-            this.changed(this.initial);
+        public bool is_connected_to (Dock dock) { // FIXME Use more logic to know Source type, value or name
+            if (!(dock is Source)) return false;
+            return this.source ==  ((Source) dock);
+        }
+
+        public void invalidate () {
+            this._valid = false;
+            this.changed ();
         }
         // FIXME This oeverrides Dock.changed signals and set a value but this should not be the case
         // FIXME when change_value is callled it sets its value and send this signal

@@ -77,11 +77,11 @@ namespace GFlow {
         public abstract Dock? get_dock (string name);
         public abstract bool has_dock(Dock d);
         public abstract unowned List<Source> get_sources ();
-        public abstract add_source (Source source);
-        public abstract remove_source (Source source);
+        public abstract void add_source (Source source);
+        public abstract void remove_source (Source source);
         public abstract bool has_source (Source s);
-        public abstract add_sink (Sink sink);
+        public abstract void add_sink (Sink sink);
         public abstract bool has_sink (Sink s);
-        public abstract remove_sink (Sink sink);
+        public abstract void remove_sink (Sink sink);
     }
 }

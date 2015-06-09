@@ -31,16 +31,10 @@ namespace GFlow {
          * Implementators: You should setup when a {@link GFlow.Source} is set
          * and when is set to null, you should release any connection from {@link GFlow.Source}.
          */
-        public abstract weak Source? source { get; }
+        public abstract weak Source? source { get; set; }
 
-        /**
-         * Returns true if this Sink is connected to the given Source
-         */
-        public virtual bool is_connected_to (Source s) { // FIXME Use more logic to know Source type, value or name
-            return this.source == s;
-        }
-
-        public virtual void set_source (Source s) throws NodeError {
+// FIXME: May avoid to rise error but a signal
+        public virtual void change_source (Source s) throws NodeError {
             this.unset_source();
             if (this.val.type() != s.val.type()) {
                 throw new NodeError.INCOMPATIBLE_SOURCETYPE(
@@ -49,19 +43,21 @@ namespace GFlow {
                     )
                 );
             }
-            this._source = s;
-            if (!this._source.connected_to(this))
-                this._source.add_sink(this);
+            this.source = s;
+            if (((Source) this.source).is_connected_to (this)) // FIXME This is a Sink not a Source - Change is_connected_to () to use a Dock not a Source?
+                this.source.add_sink (this);
             this.connected(s);
         }
 
+// FIXME: May on invalidate() you should release the source
+// FIXME: Let this to implementators when source = null is called
         public virtual void unset_source () {
-            if (this._source.connected_to(this))
-                this._source.remove_sink(this);
-            Source s = this._source;
-            this._source = null;
-            this.invalidate();
-            this.disconnected(s);
+            if (((Sink) this.source).is_connected_to (this))
+                this.source.remove_sink (this);
+            Source s = this.source;
+            this.source = null;
+            this.invalidate ();
+            this.disconnected (s);
         }
 
         /**
@@ -84,8 +80,9 @@ namespace GFlow {
                         v.type().name(),this.val.type().name())
                 );
             this.val = v;
-            this.valid = true;
-            this.changed (v);
+            // FIXME: This properly is read-only then may let implementators to define how "Change a Value"
+            //this.valid = true;
+            this.changed ();
         }
     }
 }
