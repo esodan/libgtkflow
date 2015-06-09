@@ -21,7 +21,7 @@ DISTCHECK_CONFIGURE_FLAGS = \
 ### Specify files to include in dist
 
 # in share/doc/
-gtkflowdocdir = ${prefix}/doc/gxml
+gtkflowdocdir = ${prefix}/doc/gtkflow
 gtkflowdoc_DATA = \
 	README.md \
 	COPYING \
@@ -35,7 +35,7 @@ INTLTOOL_FILES = intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in
 
-EXTRA_DIST = $(gxmldoc_DATA) \
+EXTRA_DIST = $(gtkflowdoc_DATA) \
 	autogen.sh \
 	vapi \
 	config.rpath \
