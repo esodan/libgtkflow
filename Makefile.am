@@ -5,7 +5,7 @@ ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
 
 
 # Set up subdirectories to traverse
-SUBDIRS = libgtkflow test examples
+SUBDIRS = libgflow libgtkflow test examples
 
 if ENABLE_DOCS
 SUBDIRS += docs
