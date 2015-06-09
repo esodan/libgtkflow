@@ -271,6 +271,9 @@ AM_CONDITIONAL(PLATFORM_WIN32, [test x$platform_win32 = xyes])
 ### Autoconf generating Makefiles
 AC_CONFIG_FILES([
 Makefile
+libgflow/Makefile
+libgflow/gflow-0.2.pc
+libgflow/namespace-info.vala
 libgtkflow/Makefile
 libgtkflow/gtkflow-0.2.pc
 libgtkflow/namespace-info.vala

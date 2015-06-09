@@ -1,0 +1,14 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+datarootdir=@datarootdir@
+datadir=@datadir@
+includedir=@includedir@
+
+Name: libgflow
+Description: Flow Node library
+URL: https://github.com/grindhold/libgtkflow
+Version: @VERSION@
+Requires: glib-2.0 gobject-2.0
+Libs: -L${libdir} -lgflow-@API_VERSION@
+Cflags: -I${includedir}/gflow-@API_VERSION@
