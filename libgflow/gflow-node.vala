@@ -1,9 +1,9 @@
 /********************************************************************
 # Copyright 2014 Daniel 'grindhold' Brendle, 2015 Daniel Espinosa <esodan@gmail.com>
 #
-# This file is part of libgtkflow.
+# This file is part of libgflow.
 #
-# libgtkflow is free software: you can redistribute it and/or
+# libgflow is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
 # as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later
