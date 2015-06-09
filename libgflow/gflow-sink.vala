@@ -22,7 +22,7 @@
 namespace GFlow {
     /**
      * A Sink is a special Type of Dock that receives data from
-     * A source in order to let it either 
+     * a source in order to let it either 
      */
     public interface Sink : Object, Dock {
         /**

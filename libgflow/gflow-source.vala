@@ -22,7 +22,7 @@
 namespace GFlow {
     /**
      * The Source is a special Type of Dock that provides data.
-     * A Source can provide a multitude of Sinks with data.
+     * A Source could be used by multitude of Sinks as a source of data. // FIXME Is this correct?
      */
     public interface Source : Object, Dock {
         /**
