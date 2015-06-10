@@ -280,6 +280,7 @@ libgtkflow/namespace-info.vala
 docs/Makefile
 po/Makefile.in
 test/Makefile
+test/tests-config.vala
 examples/Makefile
 ])
 AC_OUTPUT
