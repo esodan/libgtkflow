@@ -36,13 +36,14 @@ namespace GFlow {
         public GLib.Value? val {
           get { return _val; }
           set {
+            if (!_val.holds (value.type ())) return;
             _val = value;
             changed ();
           }
         }
         public SimpleSource (GLib.Value initial) {
           _initial = initial;
-          val = _initial;
+          _val = _initial;
         }
         public GLib.Value? initial { get { return _initial; } }
         public bool valid { get { return _valid; } }

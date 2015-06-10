@@ -37,6 +37,21 @@ public class GFlowTest.SourceTest
   {
     Test.add_func ("/gflow/source", 
     () => {
+      Value initial = Value(typeof(int));
+      initial.set_int (1);
+      var src = new GFlow.SimpleSource (initial);
+      assert (src.initial != null);
+      assert (src.val != null);
+      assert (src.val.holds (typeof (int)));
+      assert (src.val.get_int () == 1);
+      assert (!src.is_connected ());
+      src.val.set_int (10);
+      assert (src.val.get_int () == 10);
+      src.val = 0.10;
+      assert (src.val.get_int () == 10);
+    });
+    Test.add_func ("/gflow/source/derived", 
+    () => {
       var src = new GFlowTest.Source ();
       assert (src.initial != null);
       assert (src.val != null);

@@ -44,17 +44,14 @@ namespace GFlow {
         }
         public GLib.Value? val {
           get {
-            if (this.source != null && this.valid) {
-                return this.val;
-            }
-            return initial;
+            return _val;
           }
           set {
-            if (this.val.type() != value.type()) return;
+            if (!_val.holds (value.type ())) return;
             _val = value;
             // FIXME: This properly is read-only then may let implementators to define how "Change a Value"
             //this.valid = true;
-            this.changed ();
+            changed ();
           }
         }
 
@@ -96,6 +93,9 @@ namespace GFlow {
             if (source != null) ((Dock) source).disconnect (this);
             dock.connect (this);
             _source = (Source) dock;
+            _source.changed.connect (() =>{
+              val = _source.val;
+            });
           }
         }
         // FIXME This oeverrides Dock.changed signals and set a value but this should not be the case
