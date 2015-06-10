@@ -24,6 +24,20 @@ public class GFlowTest.SinkTest
   {
     Test.add_func ("/gflow/sink", 
     () => {
+      Value initial = Value(typeof(int));
+      initial.set_int (1);
+      var s = new GFlow.SimpleSink (initial);
+      assert (s.initial != null);
+      assert (s.val != null);
+      assert (s.val.holds (typeof(int)));
+      assert (s.val.get_int () == 1);
+      assert (s.val.type () == typeof (int));
+      assert (!s.valid);
+      assert (!s.highlight);
+      assert (!s.active);
+      assert (s.node == null);
+      assert (s.source == null);
+      assert (!s.is_connected ());
     });
   }
 }

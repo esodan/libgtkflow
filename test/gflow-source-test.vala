@@ -18,12 +18,33 @@
  */
 using GFlow;
 
+public class GFlowTest.Source : GFlow.SimpleSource
+{
+  public void update ()
+  {
+    if (_val.get_boolean ()) _val.set_boolean (false);
+    else _val.set_boolean (true);
+  }
+  public Source () {
+    Value v = false;
+    base (v);
+  }
+}
+
 public class GFlowTest.SourceTest
 {
   public static void add_tests ()
   {
     Test.add_func ("/gflow/source", 
     () => {
+      var src = new GFlowTest.Source ();
+      assert (src.initial != null);
+      assert (src.val != null);
+      assert (src.val.holds (typeof (bool)));
+      assert (!src.val.get_boolean ());
+      src.update ();
+      assert (src.val.get_boolean ());
+      assert (!src.is_connected ());
     });
   }
 }

@@ -25,9 +25,9 @@ namespace GFlow {
      */
     public class SimpleSource : Object, Dock, Source {
         // Dock interface
-        private GLib.Value _val;
-        private GLib.Value _initial;
-        private bool _valid = false;
+        protected GLib.Value? _val;
+        protected GLib.Value? _initial;
+        protected bool _valid = false;
 
         public string? name { get; set; }
         public bool highlight { get; set; }
@@ -39,6 +39,10 @@ namespace GFlow {
             _val = value;
             changed ();
           }
+        }
+        public SimpleSource (GLib.Value initial) {
+          _initial = initial;
+          val = _initial;
         }
         public GLib.Value? initial { get { return _initial; } }
         public bool valid { get { return _valid; } }

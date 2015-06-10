@@ -25,19 +25,19 @@ namespace GFlow {
      */
     public class SimpleSink : Object, Dock, Sink {
         // Dock interface
-        private GLib.Value _val;
-        private GLib.Value _initial;
-        private bool _valid = false;
+        protected GLib.Value? _val = null;
+        protected GLib.Value? _initial = null;
+        protected bool _valid = false;
 
         public string? name { get; set; }
-        public bool highlight { get; set; }
+        public bool highlight { get; set; default = false; }
         public bool active {get; set; default=false;}
         public weak Node? node { get; set; }
         public GLib.Value? val { get { return _val; } set { change_value (value); } }
         public GLib.Value? initial { get { return _initial; } }
         public bool valid { get { return _valid; } }
         // Sink Interface
-        private weak Source? _source;
+        protected weak Source? _source;
         public weak Source? source {
             get{
                 return this._source;
@@ -45,8 +45,8 @@ namespace GFlow {
             set { change_source (value); }
         }
 
-        public SimpleSink(GLib.Value initial) {
-            base(initial);
+        public SimpleSink (GLib.Value? initial) {
+          _val = _initial = initial;
         }
 
         /**
