@@ -25,56 +25,18 @@ namespace GFlow {
      * A Source could be used by multitude of Sinks as a source of data. // FIXME Is this correct?
      */
     public interface Source : Object, Dock {
+        public signal void updated ();
         /**
-        * FIXME This should be read-only
+        * FIXME This should be read-only (when you get it from here this could be modified by user)
         * FIXME May be the way to make sinks read-only is to return an owned copy of it to avoid writes on lists
          * Returns the sinks that this source is connected to
          */
         public abstract List<Sink> sinks { get; }
 
-        public virtual void set_value(GLib.Value v) throws NodeError {
-            if (this.val.type() != v.type())
-                throw new NodeError.INCOMPATIBLE_VALUE(
-                    "Cannot set a %s value to this %s Source".printf(
-                        v.type().name(),this.val.type().name())
-                );
-            this.val = v;
+        public virtual void disconnect_all () throws GLib.Error
+        {
             foreach (Sink s in this.sinks)
-                s.change_value(v);
-        }
-
-        public virtual void add_sink(Sink s) throws NodeError {
-            if (this.val.type() != s.val.type()) {
-                throw new NodeError.INCOMPATIBLE_SINKTYPE(
-                    "Can't connect. Sink has type %s while Source has type %s".printf(
-                        s.val.type().name(), this.val.type().name()
-                    )
-                );
-            }
-            if (this.sinks.index(s) == -1)
-                this.sinks.append(s);
-            if (!((Dock) s).is_connected_to(this))
-                s.source = this;
-            if (this.valid) {
-                s.change_value(this.val);
-            }
-        }
-/* FIXME This should not be set by user
-        public new void set_valid() {
-            this.valid = true;
-        }*/
-
-        public virtual void remove_sink(Sink s){
-            if (this.sinks.index(s) != -1)
-                this.sinks.remove(s);
-            if (s.is_connected_to(this))
-                s.unset_source();
-            this.disconnected(s);
-        }
-
-        public virtual void remove_sinks () {
-            foreach (Sink s in this.sinks)
-                this.remove_sink (s);
+                this.disconnect (s);
         }
     }
 }

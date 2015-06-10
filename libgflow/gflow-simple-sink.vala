@@ -33,7 +33,6 @@ namespace GFlow {
         public bool highlight { get; set; default = false; }
         public bool active {get; set; default=false;}
         public weak Node? node { get; set; }
-        public GLib.Value? val { get { return _val; } set { change_value (value); } }
         public GLib.Value? initial { get { return _initial; } }
         public bool valid { get { return _valid; } }
         // Sink Interface
@@ -42,7 +41,21 @@ namespace GFlow {
             get{
                 return this._source;
             }
-            set { change_source (value); }
+        }
+        public GLib.Value? val {
+          get {
+            if (this.source != null && this.valid) {
+                return this.val;
+            }
+            return initial;
+          }
+          set {
+            if (this.val.type() != value.type()) return;
+            _val = value;
+            // FIXME: This properly is read-only then may let implementators to define how "Change a Value"
+            //this.valid = true;
+            this.changed ();
+          }
         }
 
         public SimpleSink (GLib.Value? initial) {
@@ -64,6 +77,26 @@ namespace GFlow {
         public void invalidate () {
             this._valid = false;
             this.changed ();
+        }
+        public new void disconnect (Dock dock) throws GLib.Error
+        {
+          if (!dock.is_connected_to (this)) return;
+          if (dock is Source) {
+            if (source != null) {
+              source.disconnect (this);
+            }
+            _source = null;
+            disconnected (dock);
+          }
+        }
+        public new void connect (Dock dock) throws GLib.Error
+        {
+          if (dock.is_connected_to (this)) return;
+          if (dock is Source) {
+            if (source != null) ((Dock) source).disconnect (this);
+            dock.connect (this);
+            _source = (Source) dock;
+          }
         }
         // FIXME This oeverrides Dock.changed signals and set a value but this should not be the case
         // FIXME when change_value is callled it sets its value and send this signal
