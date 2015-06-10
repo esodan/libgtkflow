@@ -56,8 +56,8 @@ public class GFlowTest.SinkTest
       assert (s.node == null);
       assert (s.source == null);
       assert (!s.is_connected ());
-      //s.connect (src);
-      //assert (s.is_connected ());
+      s.connect (src);
+      assert (s.is_connected ());
     });
   }
 }

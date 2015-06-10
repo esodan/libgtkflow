@@ -59,10 +59,7 @@ namespace GFlow {
                     )
                 );
             }
-            if (this.sinks.index(s) == -1)
-                this.sinks.append(s);
-            if (!((Dock) s).is_connected_to(this))
-                s.connect (this);
+            this.sinks.append (s);
             if (this.valid) {
                 s.val = this.val;
             }
