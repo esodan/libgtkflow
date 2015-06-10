@@ -33,6 +33,15 @@ GtkFlow-*.gir
 libgtkflow/.libs/
 libgtkflow/gtkflow-0.2.vapi
 ChangeLog
+libgflow/.deps/
+libgflow/.libs/
+libgflow/GFlow-0.2.gir
+libgflow/GFlow-0.2.typelib
+libgflow/gflow-0.2.pc
+libgflow/gflow-0.2.vapi
+libgflow/gflow.h
+libgflow/namespace-info.vala
+
 
 # Python cache folders
 
